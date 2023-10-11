@@ -169,31 +169,6 @@ class Citas extends StatelessWidget {
   }
 }
 
-//controller
-class Cita {
-  final int id;
-  final String descripcion;
-  final int idPaciente;
-  final int idEspecialidad;
-  final int idPsicologo;
-  final String fechaCita;
-  final String horaCita;
-  final String estado;
-
-  Cita({
-    required this.id,
-    required this.descripcion,
-    required this.idPaciente,
-    required this.idEspecialidad,
-    required this.idPsicologo,
-    required this.fechaCita,
-    required this.horaCita,
-    required this.estado,
-  });
-}
-
-
-
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
