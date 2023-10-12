@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/main.dart';
 import 'package:flutter_application_2/pages/citas/citas.dart';
+import 'package:flutter_application_2/pages/asistencias.dart';
 
 class Dashboard extends StatelessWidget {
   @override
@@ -86,7 +87,10 @@ class Dashboard extends StatelessWidget {
           'Registrar asistencia',
           Icons.calendar_today,
           () {
-            // Agregar aquí la lógica para ir a la pantalla de programar cita
+             Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AsistenciaPage()),
+          );// Agregar aquí la lógica para ir a la pantalla de programar cita
           },
         ),
         _buildOptionItem(

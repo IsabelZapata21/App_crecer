@@ -25,14 +25,16 @@ class ApiService {
     }
   }
 
-  Future<void> programarCita(Map<String, dynamic> citaData) async {
-    final response = await http.post(Uri.parse("$baseUrl/programar_cita.php"),
-        body: json.encode(citaData));
-    print(response.body);
-    if (response.statusCode != 200) {
-      throw Exception("Error al programar la cita");
-    }
+  Future<String> programarCita(Map<String, dynamic> citaData) async {
+  final response = await http.post(Uri.parse("$baseUrl/programar_cita.php"),
+      body: json.encode(citaData));
+  if (response.statusCode == 200) {
+    return "Cita guardada exitosamente!";
+  } else {
+    throw Exception("Error al programar la cita: ${response.body}");
   }
+}
+
 }
 
 class Pacientes {
