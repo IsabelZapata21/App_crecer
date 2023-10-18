@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/main.dart';
-import 'package:flutter_application_2/pages/citas/actualizaci%C3%B3n.dart';
-import 'registro.dart';
-import 'historial.dart';
-import 'reportesesion.dart';
-import 'actualización.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_application_2/viewmodels/citas/citas_viewmodel.dart';
 
 class Citas extends StatelessWidget {
+  final viewModel = CitasViewModel();
+
+  Citas({super.key}); //instancia de viewModelcitas
   @override
+  //interfazCitas
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.purple, // Nuevo color de fondo
-        title: Text('Citas'),
+        title: const Text('Citas'),
         actions: <Widget>[
           PopupMenuButton<String>(
             onSelected: (value) {
@@ -56,7 +54,8 @@ class Citas extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Icon(Icons.account_circle_rounded, size: 50, color: Colors.purple), // Logo o ícono
+            Icon(Icons.account_circle_rounded,
+                size: 50, color: Colors.purple), // Logo o ícono
             SizedBox(height: 15),
             Text(
               'Bienvenida',
@@ -90,63 +89,47 @@ class Citas extends StatelessWidget {
           context,
           'Programar cita',
           Icons.calendar_today,
-          () {
-                Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Registro()),
-              );// Agregar aquí la lógica para ir a la pantalla de programar cita
-          },
+          () => viewModel.navigateToRegistro(
+              context), // Usa el ViewModel para la navegación
         ),
         _buildOptionItem(
           context,
           'Actualizar citas',
           Icons.update,
-          () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Actualizar()),
-              );
-            // Agregar aquí la lógica para ir a la pantalla de actualizar citas
-          },
+          () => viewModel.navigateToActualizar(
+              context), // Usa el ViewModel para la navegación
         ),
         _buildOptionItem(
           context,
           'Historial de citas',
           Icons.history,
-          () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HistorialCitas()),
-              );
-            // Agregar aquí la lógica para ir a la pantalla de historial de citas
-          },
+          () => viewModel.navigateToHistorialCitas(
+              context), // Usa el ViewModel para la navegación
         ),
         _buildOptionItem(
           context,
           'Reportes',
           Icons.apps_outlined,
-          () {
-             Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Reporte()),
-              );
-            // Agregar aquí la lógica para ir a la pantalla de actualizar citas
-          },
+          () => viewModel.navigateToReporte(
+              context), // Usa el ViewModel para la navegación
         ),
       ],
     );
   }
 
-  Widget _buildOptionItem(BuildContext context, String text, IconData icon, Function onPressed) {
+  Widget _buildOptionItem(
+      BuildContext context, String text, IconData icon, Function onPressed) {
     return Card(
       elevation: 2, // Elevación del card
-      margin: EdgeInsets.symmetric(vertical: 12, horizontal: 0), // Margen horizontal reducido
+      margin: EdgeInsets.symmetric(
+          vertical: 12, horizontal: 0), // Margen horizontal reducido
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15), // Esquinas redondeadas
       ),
       child: ListTile(
         onTap: () => onPressed(),
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), // Padding ajustado
+        contentPadding: EdgeInsets.symmetric(
+            vertical: 10, horizontal: 16), // Padding ajustado
         leading: CircleAvatar(
           backgroundColor: Colors.purple,
           child: Icon(icon, color: Colors.white, size: 30),
@@ -167,11 +150,4 @@ class Citas extends StatelessWidget {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: Citas(),
-  ));
 }

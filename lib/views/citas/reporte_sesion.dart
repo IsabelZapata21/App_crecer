@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'detallessesion.dart';
+import 'detalles_sesion.dart';
 
 class Reporte extends StatelessWidget {
   @override

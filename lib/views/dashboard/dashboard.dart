@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/main.dart';
-import 'package:flutter_application_2/pages/citas/citas.dart';
-import 'package:flutter_application_2/pages/asistencias.dart';
+import 'package:flutter_application_2/views/citas/citas.dart';
+import 'package:flutter_application_2/views/asistencia/asistencias.dart';
+import 'package:flutter_application_2/views/comuni/comunicacion.dart';
+import 'package:flutter_application_2/views/cronograma/cronograma.dart';
 
 class Dashboard extends StatelessWidget {
   @override
@@ -98,7 +100,10 @@ class Dashboard extends StatelessWidget {
           'Ver cronograma',
           Icons.update,
           () {
-            // Agregar aquí la lógica para ir a la pantalla de actualizar citas
+            Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CronogramaScreen()),
+          );// Ag// Agregar aquí la lógica para ir a la pantalla de actualizar citas
           },
         ),
         _buildOptionItem(
@@ -117,7 +122,10 @@ class Dashboard extends StatelessWidget {
           'Ir a chat',
           Icons.message,
           () {
-            // Agregar aquí la lógica para ir a la pantalla de chat
+             Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChatApp()),
+          );
           },
         ),
       ],

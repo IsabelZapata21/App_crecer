@@ -1,7 +1,15 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
-import '../../services/api_service.dart';
+import 'package:flutter_application_2/models/citas/paciente.dart';
+import 'package:flutter_application_2/models/citas/psicologo.dart';
+import 'package:flutter_application_2/services/citas/citas_service.dart';
+import 'package:flutter_application_2/services/citas/pacientes_service.dart';
+import 'package:flutter_application_2/services/citas/psicologos_service.dart';
 
 class Registro extends StatelessWidget {
+  const Registro({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,6 +24,8 @@ class Registro extends StatelessWidget {
 }
 
 class CitasPage extends StatefulWidget {
+  const CitasPage({super.key});
+
   @override
   _CitasPageState createState() => _CitasPageState();
 }
@@ -27,7 +37,7 @@ class _CitasPageState extends State<CitasPage> {
   int especialidad = 1;
   DateTime fechaCita = DateTime.now();
   TimeOfDay horaCita = TimeOfDay.now();
-  String? estadoCita ;
+  String? estadoCita;
   int created = 1;
   final telController = TextEditingController();
   final dirController = TextEditingController();
@@ -41,14 +51,14 @@ class _CitasPageState extends State<CitasPage> {
   void initState() {
     estadoCita = estadosCita[0];
     // Petición para traer los datos de los pacientes uwu
-    ApiService().obtenerDatos().then((value) {
+    PacienteService().obtenerDatos().then((value) {
       pacientes = value;
       paciente = value.first;
       telController.text = value.first.telfono ?? '';
       dirController.text = value.first.direccion ?? '';
       setState(() {});
     }); //
-    ApiService().obtenerPsicologos().then((value) {
+    PsicologoService().obtenerPsicologos().then((value) {
       psicologos = value;
       psicologo = value.first;
       setState(() {});
@@ -69,7 +79,7 @@ class _CitasPageState extends State<CitasPage> {
       'estadoCita': estadoCita,
       'created': created,
     };
-    await ApiService().programarCita(citaData);
+    CitasService().programarCita(citaData);
     // Mostrar un mensaje de éxito al usuario, por ejemplo, usando un SnackBar o un diálogo.
   } //catch (e) {
   // Manejar y mostrar errores al usuario, por ejemplo, usando un SnackBar o un diálogo.
@@ -127,15 +137,15 @@ class _CitasPageState extends State<CitasPage> {
                   ),
                 ),
               if (paciente != null) ...[
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Información de la cita:',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextField(
                   enabled: false,
                   controller: dirController,
@@ -145,7 +155,7 @@ class _CitasPageState extends State<CitasPage> {
                         Icon(Icons.person, color: Colors.purple), // Nuevo ícono
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextField(
                   enabled: false,
                   controller: telController,
@@ -155,7 +165,7 @@ class _CitasPageState extends State<CitasPage> {
                         Icon(Icons.phone, color: Colors.purple), // Nuevo ícono
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 TextField(
                   controller: desController,
                   decoration: const InputDecoration(
@@ -164,8 +174,8 @@ class _CitasPageState extends State<CitasPage> {
                         Icon(Icons.person, color: Colors.purple), // Nuevo ícono
                   ),
                 ),
-                SizedBox(height: 16),
-                Text('Fecha de la cita:'),
+                const SizedBox(height: 16),
+                const Text('Fecha de la cita:'),
                 SizedBox(height: 8),
                 ElevatedButton(
                   onPressed: () async {
@@ -201,7 +211,7 @@ class _CitasPageState extends State<CitasPage> {
                     }
                   },
                   child: Text(
-                    "${horaCita.format(context)}",
+                    horaCita.format(context),
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ),
