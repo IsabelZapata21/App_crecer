@@ -1,11 +1,10 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/models/citas/paciente.dart';
 import 'package:flutter_application_2/models/citas/psicologo.dart';
 import 'package:flutter_application_2/services/citas/citas_service.dart';
 import 'package:flutter_application_2/services/citas/pacientes_service.dart';
 import 'package:flutter_application_2/services/citas/psicologos_service.dart';
+import 'package:flutter_application_2/viewmodels/citas/registro_viewmodel.dart';
 
 class Registro extends StatelessWidget {
   const Registro({super.key});
@@ -16,7 +15,7 @@ class Registro extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Registro de cita',
       theme: ThemeData(
-        primarySwatch: Colors.purple, // Nuevo color
+        primarySwatch: Colors.purple,
       ),
       home: CitasPage(),
     );
@@ -42,54 +41,117 @@ class _CitasPageState extends State<CitasPage> {
   final telController = TextEditingController();
   final dirController = TextEditingController();
   final desController = TextEditingController();
+  //instancia del viewmodel
+  final viewModel = RegistroValidate();
 
   // Listas para las opciones de psicólogos y estados de la cita
   List<Psicologo>? psicologos;
   List<String> estadosCita = ['Pendiente', 'Cancelado'];
-  List<Pacientes>? pacientes; //esperar a que se inicialice
+  List<Pacientes>? pacientes;
+
   @override
   void initState() {
     estadoCita = estadosCita[0];
-    // Petición para traer los datos de los pacientes uwu
     PacienteService().obtenerDatos().then((value) {
       pacientes = value;
-      paciente = value.first;
-      telController.text = value.first.telfono ?? '';
-      dirController.text = value.first.direccion ?? '';
       setState(() {});
-    }); //
+    });
     PsicologoService().obtenerPsicologos().then((value) {
       psicologos = value;
-      psicologo = value.first;
       setState(() {});
-    }); //
+    });
     super.initState();
   }
 
-  // Función para guardar la cita
-  void guardarCita() async {
-    //try {
-    Map<String, dynamic> citaData = {
-      'paciente': paciente?.id,
-      'descripcion': desController.text,
-      'especialidad': especialidad,
-      'psicologo': psicologo?.id,
-      'fechaCita': fechaCita.toString(),
-      'horaCita': horaCita.format(context),
-      'estadoCita': estadoCita,
-      'created': created,
-    };
-    CitasService().programarCita(citaData);
-    // Mostrar un mensaje de éxito al usuario, por ejemplo, usando un SnackBar o un diálogo.
-  } //catch (e) {
-  // Manejar y mostrar errores al usuario, por ejemplo, usando un SnackBar o un diálogo.
-  //print(e);
+void guardarCita() async {
+  String? error = viewModel.validarCampos(paciente, psicologo, desController.text, estadoCita);
+  if (error != null) {
+    // Mostrar el error en un showDialog
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(error),
+        actions: [
+          TextButton(
+            child: Text('Aceptar'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+    return;
+  }
+
+  Map<String, dynamic> citaData = {
+    'paciente': paciente?.id,
+    'descripcion': desController.text,
+    'especialidad': especialidad,
+    'psicologo': psicologo?.id,
+    'fechaCita': fechaCita.toString(),
+    'horaCita': horaCita.format(context),
+    'estadoCita': estadoCita,
+    'created': created,
+  };
+
+  try {
+    String mensaje = await CitasService().programarCita(citaData);
+    // Si se guardó con éxito, muestra un dialog
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Éxito'),
+        content: Text(mensaje),
+        actions: [
+          TextButton(
+            child: Text('Aceptar'),
+            onPressed: () {
+              // Limpia los campos y reinicia el estado
+              _resetForm();
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  } catch (e) {
+    // Aquí puedes manejar el caso en el que no se pudo guardar la cita
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(e.toString()),
+        actions: [
+          TextButton(
+            child: Text('Aceptar'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+void _resetForm() {
+  setState(() {
+    paciente = null;
+    psicologo = null;
+    especialidad = 1;
+    fechaCita = DateTime.now();
+    horaCita = TimeOfDay.now();
+    estadoCita = estadosCita[0];
+    telController.clear();
+    dirController.clear();
+    desController.clear();
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple, // Nuevo color de fondo
+        backgroundColor: Colors.purple,
         title: const Text('Programar cita'),
       ),
       body: Padding(
@@ -98,148 +160,152 @@ class _CitasPageState extends State<CitasPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              if (pacientes != null)
-                DropdownButtonFormField<Pacientes?>(
-                  value: paciente,
-                  items: pacientes!.map((p) {
+              DropdownButtonFormField<Pacientes?>(
+                value: paciente,
+                items: [
+                  DropdownMenuItem<Pacientes?>(
+                    value: null,
+                    child: Text('Seleccionar'),
+                  ),
+                  ...pacientes!.map((p) {
                     return DropdownMenuItem<Pacientes?>(
                       value: p,
                       child: Text('${p.nombre}'),
                     );
                   }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      paciente = value;
-                      telController.text = value?.telfono ?? '';
-                      dirController.text = value?.direccion ?? '';
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'Paciente',
-                  ),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    paciente = value;
+                    telController.text = value?.telfono ?? '';
+                    dirController.text = value?.direccion ?? '';
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Paciente',
+                  border: OutlineInputBorder(),
                 ),
-              if (psicologos != null)
-                DropdownButtonFormField(
-                  value: psicologo,
-                  items: psicologos?.map((p) {
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField(
+                value: psicologo,
+                items: [
+                  DropdownMenuItem(
+                    value: null,
+                    child: Text('Seleccionar'),
+                  ),
+                  ...?psicologos?.map((p) {
                     return DropdownMenuItem(
                       value: p,
                       child: Text('${p.nombres} ${p.apellidos}'),
                     );
                   }).toList(),
-                  onChanged: (value) {
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    psicologo = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Psicólogo',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: dirController,
+                enabled: false, // Deshabilita la edición
+                decoration: InputDecoration(
+                  labelText: 'Dirección',
+                  prefixIcon: Icon(Icons.person, color: Colors.purple),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: telController,
+                enabled: false, // Deshabilita la edición
+                decoration: InputDecoration(
+                  labelText: 'Número de teléfono',
+                  prefixIcon: Icon(Icons.phone, color: Colors.purple),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: desController,
+                decoration: InputDecoration(
+                  labelText: 'Descripción',
+                  prefixIcon: Icon(Icons.note, color: Colors.purple),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  final fechaSeleccionada = await showDatePicker(
+                    context: context,
+                    initialDate: fechaCita,
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2101),
+                  );
+                  if (fechaSeleccionada != null &&
+                      fechaSeleccionada != fechaCita) {
                     setState(() {
-                      psicologo = value;
+                      fechaCita = fechaSeleccionada;
                     });
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'Psicólogo',
-                  ),
+                  }
+                },
+                child: Text(
+                  "${fechaCita.toLocal()}".split(' ')[0],
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              if (paciente != null) ...[
-                const SizedBox(height: 16),
-                const Text(
-                  'Información de la cita:',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  enabled: false,
-                  controller: dirController,
-                  decoration: const InputDecoration(
-                    labelText: 'Dirección',
-                    prefixIcon:
-                        Icon(Icons.person, color: Colors.purple), // Nuevo ícono
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  enabled: false,
-                  controller: telController,
-                  decoration: const InputDecoration(
-                    labelText: 'Número de teléfono',
-                    prefixIcon:
-                        Icon(Icons.phone, color: Colors.purple), // Nuevo ícono
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: desController,
-                  decoration: const InputDecoration(
-                    labelText: 'Descripción',
-                    prefixIcon:
-                        Icon(Icons.person, color: Colors.purple), // Nuevo ícono
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text('Fecha de la cita:'),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () async {
-                    final fechaSeleccionada = await showDatePicker(
-                      context: context,
-                      initialDate: fechaCita,
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2101),
-                    );
-                    if (fechaSeleccionada != null &&
-                        fechaSeleccionada != fechaCita) {
-                      setState(() {
-                        fechaCita = fechaSeleccionada;
-                      });
-                    }
-                  },
-                  child: Text(
-                    "${fechaCita.toLocal()}".split(' ')[0],
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final horaSeleccionada = await showTimePicker(
-                      context: context,
-                      initialTime: horaCita,
-                    );
-                    if (horaSeleccionada != null &&
-                        horaSeleccionada != horaCita) {
-                      setState(() {
-                        horaCita = horaSeleccionada;
-                      });
-                    }
-                  },
-                  child: Text(
-                    horaCita.format(context),
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DropdownButtonFormField(
-                  value: estadoCita,
-                  items: estadosCita.map((String estado) {
-                    return DropdownMenuItem(
-                      value: estado,
-                      child: Text(estado),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  final horaSeleccionada = await showTimePicker(
+                    context: context,
+                    initialTime: horaCita,
+                  );
+                  if (horaSeleccionada != null &&
+                      horaSeleccionada != horaCita) {
                     setState(() {
-                      estadoCita = value.toString();
+                      horaCita = horaSeleccionada;
                     });
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'Estado de la Cita',
-                  ),
+                  }
+                },
+                child: Text(
+                  horaCita.format(context),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () async {
-                    guardarCita();
-                  },
-                  child: const Text('Guardar cita'),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField(
+                value: estadoCita,
+                items: estadosCita.map((String estado) {
+                  return DropdownMenuItem(
+                    value: estado,
+                    child: Text(estado),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    estadoCita = value.toString();
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Estado de la Cita',
+                  border: OutlineInputBorder(),
                 ),
-              ],
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  guardarCita();
+                },
+                child: const Text('Guardar cita'),
+              ),
             ],
           ),
         ),

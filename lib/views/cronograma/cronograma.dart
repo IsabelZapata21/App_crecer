@@ -5,7 +5,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Cronograma Flutter',
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
@@ -29,13 +28,18 @@ class CronogramaScreen extends StatefulWidget {
 class _CronogramaScreenState extends State<CronogramaScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-  List<Actividad> actividadesDelDia = [];
+  DateTime _selectedDay = DateTime.now();
+  Map<DateTime, List<Actividad>> actividadesPorDia = {};
+
+  List<Actividad> _getActividadesForDay(DateTime day) {
+    return actividadesPorDia[day] ?? [];
+  }
 
   void _mostrarFormulario({Actividad? actividad}) {
-    final _tituloController = TextEditingController(text: actividad?.titulo);
+    final _tituloController =
+        TextEditingController(text: actividad?.titulo ?? '');
     final _descripcionController =
-        TextEditingController(text: actividad?.descripcion);
+        TextEditingController(text: actividad?.descripcion ?? '');
 
     showDialog(
       context: context,
@@ -63,6 +67,17 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                 Navigator.of(context).pop();
               },
             ),
+            if (actividad != null) ...[
+              TextButton(
+                child: Text('Eliminar'),
+                onPressed: () {
+                  setState(() {
+                    actividadesPorDia[_selectedDay]!.remove(actividad);
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
             TextButton(
               child: Text('Guardar'),
               onPressed: () {
@@ -73,10 +88,13 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
 
                 setState(() {
                   if (actividad == null) {
-                    actividadesDelDia.add(nuevaActividad);
+                    actividadesPorDia[_selectedDay] = actividadesPorDia
+                        .putIfAbsent(_selectedDay, () => [])
+                      ..add(nuevaActividad);
                   } else {
-                    final index = actividadesDelDia.indexOf(actividad);
-                    actividadesDelDia[index] = nuevaActividad;
+                    final index =
+                        actividadesPorDia[_selectedDay]!.indexOf(actividad);
+                    actividadesPorDia[_selectedDay]![index] = nuevaActividad;
                   }
                 });
 
@@ -102,32 +120,113 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
             firstDay: DateTime.utc(2020, 10, 16),
             lastDay: DateTime.utc(2101, 10, 16),
             focusedDay: _focusedDay,
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
             calendarFormat: _calendarFormat,
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
-                _selectedDay = selectedDay;
+                _selectedDay = DateTime(
+                    selectedDay.year, selectedDay.month, selectedDay.day);
                 _focusedDay =
-                    selectedDay; // Asegúrate de que el focusedDay se actualice al día seleccionado
+                    DateTime(focusedDay.year, focusedDay.month, focusedDay.day);
               });
             },
             onPageChanged: (focusedDay) {
               setState(() {
-                // Asegúrate de que estás usando setState aquí también
                 _focusedDay = focusedDay;
               });
             },
+            eventLoader: _getActividadesForDay,
+            calendarBuilders: CalendarBuilders(
+              selectedBuilder: (context, date, events) {
+                return Container(
+                  margin: const EdgeInsets.all(4.0),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    date.day.toString(),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              },
+              todayBuilder: (context, date, events) {
+                return Container(
+                  margin: const EdgeInsets.all(4.0),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    date.day.toString(),
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              },
+              defaultBuilder: (context, date, _) {
+                if (actividadesPorDia[date] != null &&
+                    actividadesPorDia[date]!.isNotEmpty) {
+                  return Container(
+                    margin: const EdgeInsets.all(4.0),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      date.day.toString(),
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                } else {
+                  return Container(
+                    margin: const EdgeInsets.all(4.0),
+                    alignment: Alignment.center,
+                    child: Text(
+                      date.day.toString(),
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  );
+                }
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              "Actividades para ${_selectedDay.toLocal().toString().split(' ')[0]}",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: actividadesDelDia.length,
+              itemCount: actividadesPorDia[_selectedDay]?.length ?? 0,
               itemBuilder: (context, index) {
+                final actividad = actividadesPorDia[_selectedDay]![index];
                 return ListTile(
-                  title: Text(actividadesDelDia[index].titulo),
-                  subtitle: Text(actividadesDelDia[index].descripcion),
-                  trailing: Icon(Icons.edit),
-                  onTap: () {
-                    _mostrarFormulario(actividad: actividadesDelDia[index]);
-                  },
+                  title: Text(actividad.titulo),
+                  subtitle: Text(actividad.descripcion),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () {
+                          _mostrarFormulario(actividad: actividad);
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          setState(() {
+                            actividadesPorDia[_selectedDay]!.removeAt(index);
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                 );
               },
             ),

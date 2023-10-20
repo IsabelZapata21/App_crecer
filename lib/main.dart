@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_2/views/citas/registro.dart';
 import 'package:flutter_application_2/views/cronograma/cronograma.dart';
 import 'package:flutter_application_2/views/usuarios/login.dart';
 import 'package:flutter_application_2/views/usuarios/splash.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         '/dashboard': (BuildContext context) => Dashboard(),
         '/cronograma': (BuildContext context) => CronogramaScreen(),
         '/LoginPage': (BuildContext context) => LoginPage(),
+        '/registro': (BuildContext context) => const Registro(),
       },
     );
   }

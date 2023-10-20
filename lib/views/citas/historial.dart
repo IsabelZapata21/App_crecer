@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/main.dart';
+import 'package:flutter_application_2/models/citas/cita.dart';
+import 'package:flutter_application_2/services/citas/citas_service.dart';
 
-class HistorialCitas extends StatelessWidget {
+class HistorialCitas extends StatefulWidget {
+  @override
+  _HistorialCitasState createState() => _HistorialCitasState();
+}
+
+class _HistorialCitasState extends State<HistorialCitas> {
+  String _filtroSeleccionado = 'Todas'; // Por defecto, muestra todas las citas
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.purple, // Nuevo color de fondo
-        title: Text('Historial de Citas'),
+        title: Text('Historial de citas'),
         actions: <Widget>[
+          _buildFiltroDropdown(), // Agregamos el filtro como un widget en el AppBar
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'cerrar_sesion') {
@@ -45,25 +54,40 @@ class HistorialCitas extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: <Widget>[
-            _buildCitaItem(
-              fecha: '03 Octubre 2023',
-              hora: '15:00 - 16:00',
-              descripcion: 'Consulta médica general',
-              isPast: false, // Añadido para diferenciar citas pasadas
-            ),
-            _buildCitaItem(
-              fecha: '10 Octubre 2023',
-              hora: '10:00 - 11:00',
-              descripcion: 'Revisión de exámenes',
-              isPast: true, // Añadido para diferenciar citas pasadas
-            ),
-            // Puedes agregar más citas aquí
-          ],
-        ),
+      body: FutureBuilder<List<Citas>>(
+        future: CitasService().obtenerListaCitas(), // Llama a la función para obtener la lista de citas
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(), // Muestra un indicador de carga mientras se obtienen los datos
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Text('No hay citas disponibles.'),
+            );
+          } else {
+            // Cuando se obtienen los datos con éxito
+            final List<Citas> citas = snapshot.data!
+                .where((cita) => _filtroSeleccionado == 'Todas' || cita.estado == _filtroSeleccionado)
+                .toList();
+            return ListView.builder(
+              itemCount: citas.length,
+              itemBuilder: (context, index) {
+                final cita = citas[index];
+                return _buildCitaItem(
+                  fecha: 'Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}', // Formatea la fecha
+                  hora: 'Hora: ${cita.horaCita}',
+                  descripcion: cita.descripcion ?? '',
+                  isPast: false, // Añadido para diferenciar citas pasadas
+                );
+              },
+            );
+          }
+        },
       ),
     );
   }
@@ -71,7 +95,7 @@ class HistorialCitas extends StatelessWidget {
   Widget _buildCitaItem({required String fecha, required String hora, required String descripcion, required bool isPast}) {
     return Card(
       elevation: 2, // Elevación del card
-      margin: EdgeInsets.symmetric(vertical: 12, horizontal: 0), // Margen horizontal reducido
+      margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16), // Margen horizontal ajustado
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15), // Esquinas redondeadas
       ),
@@ -89,15 +113,27 @@ class HistorialCitas extends StatelessWidget {
             color: isPast ? Colors.grey : Colors.black, // Color basado en si la cita es pasada o no
           ),
         ),
-        subtitle: Text('Hora: $hora\n$descripcion'),
+        subtitle: Text(hora + '\n' + descripcion),
       ),
     );
   }
-}
 
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: HistorialCitas(),
-  ));
+  Widget _buildFiltroDropdown() {
+    return DropdownButton<String>(
+      value: _filtroSeleccionado,
+      onChanged: (String? newValue) {
+        setState(() {
+          _filtroSeleccionado = newValue!;
+        });
+      },
+      items: <String>['Todas', 'Confirmada', 'Pendiente', 'Cancelada']
+          .map<DropdownMenuItem<String>>(
+            (String value) => DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            ),
+          )
+          .toList(),
+    );
+  }
 }

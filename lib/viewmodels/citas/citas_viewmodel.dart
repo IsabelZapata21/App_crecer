@@ -15,7 +15,7 @@ class CitasViewModel {
   void navigateToActualizar(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Actualizar()),
+      MaterialPageRoute(builder: (context) => ActualizarCita()),
     );
   }
 
