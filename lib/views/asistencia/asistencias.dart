@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/models/asistencias/asistencia.dart';
 import 'package:flutter_application_2/services/asistencia/asistencia_service.dart';
+import 'package:flutter_application_2/views/asistencia/foto.dart';
+
 
 class AsistenciaPage extends StatefulWidget {
   @override
@@ -90,6 +92,7 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
                 color: Colors.deepPurple,
                 iconSize: 40.0,
                 onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => TomarFotoPage()));
                   // ... (sin cambios aquí)
                 },
               ),

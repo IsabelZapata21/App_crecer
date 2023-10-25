@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+void main() => runApp(MyApp());
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -16,8 +18,15 @@ class MyApp extends StatelessWidget {
 class Actividad {
   final String titulo;
   final String descripcion;
+  final DateTime fechaInicio;
+  final DateTime fechaFin;
 
-  Actividad({required this.titulo, required this.descripcion});
+  Actividad({
+    required this.titulo,
+    required this.descripcion,
+    required this.fechaInicio,
+    required this.fechaFin,
+  });
 }
 
 class CronogramaScreen extends StatefulWidget {
@@ -40,68 +49,116 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
         TextEditingController(text: actividad?.titulo ?? '');
     final _descripcionController =
         TextEditingController(text: actividad?.descripcion ?? '');
+    DateTime _fechaInicio = actividad?.fechaInicio ?? DateTime.now();
+    DateTime _fechaFin = actividad?.fechaFin ?? DateTime.now();
 
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title:
-              Text(actividad == null ? 'Añadir Actividad' : 'Editar Actividad'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _tituloController,
-                decoration: InputDecoration(labelText: 'Título'),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(
+                  actividad == null ? 'Añadir Actividad' : 'Editar Actividad'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: _tituloController,
+                      decoration: InputDecoration(labelText: 'Título'),
+                    ),
+                    TextField(
+                      controller: _descripcionController,
+                      decoration: InputDecoration(labelText: 'Descripción'),
+                    ),
+                    SizedBox(height: 10),
+                    ListTile(
+                      title: Text("Fecha de inicio: $_fechaInicio"),
+                      trailing: Icon(Icons.calendar_today),
+                      onTap: () async {
+                        DateTime? fechaSeleccionada = await showDatePicker(
+                          context: context,
+                          initialDate: _fechaInicio,
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2101),
+                        );
+                        if (fechaSeleccionada != null &&
+                            fechaSeleccionada != _fechaInicio) {
+                          setState(() {
+                            _fechaInicio = fechaSeleccionada;
+                          });
+                        }
+                      },
+                    ),
+                    ListTile(
+                      title: Text("Fecha de fin: $_fechaFin"),
+                      trailing: Icon(Icons.calendar_today),
+                      onTap: () async {
+                        DateTime? fechaSeleccionada = await showDatePicker(
+                          context: context,
+                          initialDate: _fechaFin,
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2101),
+                        );
+                        if (fechaSeleccionada != null &&
+                            fechaSeleccionada != _fechaFin) {
+                          setState(() {
+                            _fechaFin = fechaSeleccionada;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
-              TextField(
-                controller: _descripcionController,
-                decoration: InputDecoration(labelText: 'Descripción'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              child: Text('Cancelar'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            if (actividad != null) ...[
-              TextButton(
-                child: Text('Eliminar'),
-                onPressed: () {
-                  setState(() {
-                    actividadesPorDia[_selectedDay]!.remove(actividad);
-                  });
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-            TextButton(
-              child: Text('Guardar'),
-              onPressed: () {
-                final nuevaActividad = Actividad(
-                  titulo: _tituloController.text,
-                  descripcion: _descripcionController.text,
-                );
+              actions: [
+                TextButton(
+                  child: Text('Cancelar'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                if (actividad != null) ...[
+                  TextButton(
+                    child: Text('Eliminar'),
+                    onPressed: () {
+                      setState(() {
+                        actividadesPorDia[_selectedDay]!.remove(actividad);
+                      });
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+                TextButton(
+                  child: Text('Guardar'),
+                  onPressed: () {
+                    final nuevaActividad = Actividad(
+                      titulo: _tituloController.text,
+                      descripcion: _descripcionController.text,
+                      fechaInicio: _fechaInicio,
+                      fechaFin: _fechaFin,
+                    );
 
-                setState(() {
-                  if (actividad == null) {
-                    actividadesPorDia[_selectedDay] = actividadesPorDia
-                        .putIfAbsent(_selectedDay, () => [])
-                      ..add(nuevaActividad);
-                  } else {
-                    final index =
-                        actividadesPorDia[_selectedDay]!.indexOf(actividad);
-                    actividadesPorDia[_selectedDay]![index] = nuevaActividad;
-                  }
-                });
+                    setState(() {
+                      if (actividad == null) {
+                        actividadesPorDia[_selectedDay] = actividadesPorDia
+                            .putIfAbsent(_selectedDay, () => [])
+                          ..add(nuevaActividad);
+                      } else {
+                        final index =
+                            actividadesPorDia[_selectedDay]!.indexOf(actividad);
+                        actividadesPorDia[_selectedDay]![index] =
+                            nuevaActividad;
+                      }
+                    });
 
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -207,7 +264,8 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                 final actividad = actividadesPorDia[_selectedDay]![index];
                 return ListTile(
                   title: Text(actividad.titulo),
-                  subtitle: Text(actividad.descripcion),
+                  subtitle: Text(
+                      '${actividad.descripcion} (${actividad.fechaInicio.toLocal().toString().split(' ')[0]} - ${actividad.fechaFin.toLocal().toString().split(' ')[0]})'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

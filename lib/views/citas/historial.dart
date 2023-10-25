@@ -15,10 +15,10 @@ class _HistorialCitasState extends State<HistorialCitas> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.purple, // Nuevo color de fondo
+        backgroundColor: Colors.purple,
         title: Text('Historial de citas'),
         actions: <Widget>[
-          _buildFiltroDropdown(), // Agregamos el filtro como un widget en el AppBar
+          _buildFiltroDropdown(),
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'cerrar_sesion') {
@@ -55,11 +55,11 @@ class _HistorialCitasState extends State<HistorialCitas> {
         ],
       ),
       body: FutureBuilder<List<Citas>>(
-        future: CitasService().obtenerListaCitas(), // Llama a la función para obtener la lista de citas
+        future: CitasService().obtenerListaCitas(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
-              child: CircularProgressIndicator(), // Muestra un indicador de carga mientras se obtienen los datos
+              child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
             return Center(
@@ -70,7 +70,6 @@ class _HistorialCitasState extends State<HistorialCitas> {
               child: Text('No hay citas disponibles.'),
             );
           } else {
-            // Cuando se obtienen los datos con éxito
             final List<Citas> citas = snapshot.data!
                 .where((cita) => _filtroSeleccionado == 'Todas' || cita.estado == _filtroSeleccionado)
                 .toList();
@@ -78,11 +77,14 @@ class _HistorialCitasState extends State<HistorialCitas> {
               itemCount: citas.length,
               itemBuilder: (context, index) {
                 final cita = citas[index];
-                return _buildCitaItem(
-                  fecha: 'Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}', // Formatea la fecha
-                  hora: 'Hora: ${cita.horaCita}',
-                  descripcion: cita.descripcion ?? '',
-                  isPast: false, // Añadido para diferenciar citas pasadas
+                return GestureDetector(
+                  onTap: () => _mostrarDetallesCita(cita),
+                  child: _buildCitaItem(
+                    fecha: 'Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}',
+                    hora: 'Hora: ${cita.horaCita}',
+                    descripcion: cita.descripcion ?? '',
+                    isPast: false,
+                  ),
                 );
               },
             );
@@ -92,17 +94,77 @@ class _HistorialCitasState extends State<HistorialCitas> {
     );
   }
 
+void _mostrarDetallesCita(Citas cita) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Detalles de la Cita'),
+        content: SingleChildScrollView( // Añadido para manejar contenido que podría ser más largo
+          child: ListBody( // Usamos ListBody en lugar de Column
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.calendar_today),
+                title: Text('Fecha'),
+                subtitle: Text('${cita.fechaCita?.toLocal().toString().split(' ')[0]}'),
+              ),
+              ListTile(
+                leading: Icon(Icons.access_time),
+                title: Text('Hora'),
+                subtitle: Text('${cita.horaCita}'),
+              ),
+              ListTile(
+                leading: Icon(Icons.description),
+                title: Text('Descripción'),
+                subtitle: Text('${cita.descripcion ?? ''}'),
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Paciente'),
+                subtitle: Text('${cita.idPaciente}'), // Aquí deberías mostrar el nombre del paciente en lugar del ID
+              ),
+              ListTile(
+                leading: Icon(Icons.person_outline),
+                title: Text('Psicólogo'),
+                subtitle: Text('${cita.idPsicologo}'), // Aquí deberías mostrar el nombre del psicólogo en lugar del ID
+              ),
+              ListTile(
+                leading: Icon(Icons.medical_services),
+                title: Text('Especialidad'),
+                subtitle: Text('${cita.idEspecialidad}'), // Aquí deberías mostrar el nombre de la especialidad en lugar del ID
+              ),
+              ListTile(
+                leading: Icon(Icons.check_circle),
+                title: Text('Estado'),
+                subtitle: Text('${cita.estado}'),
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Cerrar'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
   Widget _buildCitaItem({required String fecha, required String hora, required String descripcion, required bool isPast}) {
     return Card(
-      elevation: 2, // Elevación del card
-      margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16), // Margen horizontal ajustado
+      elevation: 2,
+      margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15), // Esquinas redondeadas
+        borderRadius: BorderRadius.circular(15),
       ),
       child: ListTile(
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), // Padding ajustado
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         leading: CircleAvatar(
-          backgroundColor: isPast ? Colors.grey : Colors.purple, // Color basado en si la cita es pasada o no
+          backgroundColor: isPast ? Colors.grey : Colors.purple,
           child: Icon(Icons.calendar_today, color: Colors.white, size: 30),
           radius: 30,
         ),
@@ -110,7 +172,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
           fecha,
           style: TextStyle(
             fontSize: 18,
-            color: isPast ? Colors.grey : Colors.black, // Color basado en si la cita es pasada o no
+            color: isPast ? Colors.grey : Colors.black,
           ),
         ),
         subtitle: Text(hora + '\n' + descripcion),
