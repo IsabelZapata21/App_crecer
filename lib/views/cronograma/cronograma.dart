@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:flutter_application_2/services/cronograma/actividades_service.dart';
+import 'package:flutter_application_2/models/cronograma/actividades.dart';
 
 void main() => runApp(MyApp());
 
@@ -23,8 +25,13 @@ class CronogramaScreen extends StatefulWidget {
 class _CronogramaScreenState extends State<CronogramaScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   //variables
+  Actividades? actividades;
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
+  DateTime fechaInicio = DateTime.now();
+  DateTime fechaFin = DateTime.now();
+  String? estadoActividad;
+  List<String> estadosActividad = ['Pendiente', 'Realizada', 'Cancelada'];
 
   Map<DateTime, List<Actividades>> actividadesPorDia = {};
 
@@ -32,7 +39,59 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
     return actividadesPorDia[day] ?? [];
   }
 
-  void _guardarActividades(Actividades actividad) {
+  @override
+  void initState() {
+    estadoActividad = estadosActividad[0];
+    super.initState();
+  }
+
+  void _guardarActividades(Actividades actividad) async {
+    Map<String, dynamic> actData = {
+      'actividad': actividad.idAct,
+      'nombre': actividad.nombre,
+      'descripcion': actividad.descripcion,
+      'fechaInicio': actividad.fechaInicio.toString(),
+      'fechaFin': actividad.fechaFin.toString(),
+      'responsable': 1,
+      'estado': estadoActividad
+    };
+    print(actData);
+    try {
+      String mensaje = await ActividadesService().guardarActividades(actData);
+      // Si se guardó con éxito, muestra un dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Éxito'),
+          content: Text(mensaje),
+          actions: [
+            TextButton(
+              child: Text('Aceptar'),
+              onPressed: () {
+                // Limpia los campos y reinicia el estado
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      // Aquí puedes manejar el caso en el que no se pudo guardar la cita
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text(e.toString()),
+          actions: [
+            TextButton(
+              child: Text('Aceptar'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+    }
+
     if (actividadesPorDia[_selectedDay] == null) {
       actividadesPorDia[_selectedDay] = [];
     }
@@ -219,9 +278,23 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                 TextButton(
                   child: Text('Guardar'),
                   onPressed: () {
+                    _fechaInicio = DateTime(
+                      _fechaInicio.year,
+                      _fechaInicio.month,
+                      _fechaInicio.day,
+                      _horaInicio.hour,
+                      _horaInicio.minute,
+                    );
+                    _fechaFin = DateTime(
+                      _fechaFin.year,
+                      _fechaFin.month,
+                      _fechaFin.day,
+                      _horaFin.hour,
+                      _horaFin.minute,
+                    );
                     final nuevaActividad = Actividades(
                       idAct:
-                          'ID_GENERADO_AUTOMATICAMENTE', // Aquí puedes generar un ID o usar una función para ello
+                          '0', // Aquí puedes generar un ID o susar una función para ello
                       nombre: _tituloController.text,
                       descripcion: _descripcionController.text,
                       fechaInicio: _fechaInicio,

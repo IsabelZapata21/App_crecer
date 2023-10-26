@@ -38,6 +38,7 @@ class _CitasPageState extends State<CitasPage> {
   TimeOfDay horaCita = TimeOfDay.now();
   String? estadoCita;
   int created = 1;
+
   final telController = TextEditingController();
   final dirController = TextEditingController();
   final desController = TextEditingController();
@@ -167,12 +168,12 @@ void _resetForm() {
                     value: null,
                     child: Text('Seleccionar'),
                   ),
-                  ...pacientes!.map((p) {
+                  ...pacientes?.map((p) {
                     return DropdownMenuItem<Pacientes?>(
                       value: p,
                       child: Text('${p.nombre}'),
                     );
-                  }).toList(),
+                  }).toList()??[],
                 ],
                 onChanged: (value) {
                   setState(() {
