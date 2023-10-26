@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pdfWidgets;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_application_2/models/cronograma/actividades.dart';
+import 'package:flutter_application_2/services/citas/citas_service.dart'; // Asegúrate de importar tu servicio
 
 void main() => runApp(MyApp());
 
@@ -15,20 +20,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Actividad {
-  final String titulo;
-  final String descripcion;
-  final DateTime fechaInicio;
-  final DateTime fechaFin;
-
-  Actividad({
-    required this.titulo,
-    required this.descripcion,
-    required this.fechaInicio,
-    required this.fechaFin,
-  });
-}
-
 class CronogramaScreen extends StatefulWidget {
   @override
   _CronogramaScreenState createState() => _CronogramaScreenState();
@@ -38,19 +29,91 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
-  Map<DateTime, List<Actividad>> actividadesPorDia = {};
+  Map<DateTime, List<Actividades>> actividadesPorDia = {};
 
-  List<Actividad> _getActividadesForDay(DateTime day) {
+  final CitasService _citasService = CitasService(); // Instancia del servicio
+
+  List<Actividades> _getActividadesForDay(DateTime day) {
     return actividadesPorDia[day] ?? [];
   }
 
-  void _mostrarFormulario({Actividad? actividad}) {
+  pdfWidgets.Document _crearPDF() {
+    final pdf = pdfWidgets.Document();
+
+    pdf.addPage(
+      pdfWidgets.Page(
+        build: (pdfWidgets.Context context) {
+          return pdfWidgets.ListView.builder(
+            itemCount: actividadesPorDia.length,
+            itemBuilder: (context, index) {
+              final actividades = actividadesPorDia.values.elementAt(index);
+              return pdfWidgets.Column(
+                children: actividades.map((actividad) {
+                  return pdfWidgets.Padding(
+                    padding: const pdfWidgets.EdgeInsets.all(8.0),
+                    child: pdfWidgets.Text(
+                      '${actividad.nombre} (${actividad.fechaInicio} - ${actividad.fechaFin})',
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          );
+        },
+      ),
+    );
+
+    return pdf;
+  }
+
+  Future<bool> _solicitarPermisoDeAlmacenamiento() async {
+    PermissionStatus status = await Permission.storage.status;
+
+    if (!status.isGranted) {
+      status = await Permission.storage.request();
+      if (!status.isGranted) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void _exportarActividadesDelMes() async {
+    final pdf = _crearPDF();
+    // Aquí puedes guardar el PDF en el sistema de archivos o compartirlo
+    // Por ahora, solo mostraré un SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('PDF creado (aún no guardado)')),
+    );
+  }
+
+  void _guardarActividades(Actividades actividad) {
+    if (actividadesPorDia[_selectedDay] == null) {
+      actividadesPorDia[_selectedDay] = [];
+    }
+    actividadesPorDia[_selectedDay]!.add(actividad);
+  }
+
+  void _exportarPDF() async {
+    bool tienePermiso = await _solicitarPermisoDeAlmacenamiento();
+    if (tienePermiso) {
+      _exportarActividadesDelMes();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permiso de almacenamiento denegado')),
+      );
+    }
+  }
+
+  void _mostrarFormulario({Actividades? actividad}) {
     final _tituloController =
-        TextEditingController(text: actividad?.titulo ?? '');
+        TextEditingController(text: actividad?.nombre ?? '');
     final _descripcionController =
         TextEditingController(text: actividad?.descripcion ?? '');
     DateTime _fechaInicio = actividad?.fechaInicio ?? DateTime.now();
     DateTime _fechaFin = actividad?.fechaFin ?? DateTime.now();
+    TimeOfDay _horaInicio = TimeOfDay.fromDateTime(_fechaInicio);
+    TimeOfDay _horaFin = TimeOfDay.fromDateTime(_fechaFin);
 
     showDialog(
       context: context,
@@ -74,8 +137,10 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                     ),
                     SizedBox(height: 10),
                     ListTile(
-                      title: Text("Fecha de inicio: ${_fechaInicio.toLocal().toString().split(' ')[0]}"),
-                      trailing: Icon(Icons.calendar_today, color: Colors.purple),
+                      title: Text(
+                          "Fecha de inicio: ${_fechaInicio.toLocal().toString().split(' ')[0]}"),
+                      trailing:
+                          Icon(Icons.calendar_today, color: Colors.purple),
                       onTap: () async {
                         DateTime? fechaSeleccionada = await showDatePicker(
                           context: context,
@@ -87,8 +152,10 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                               data: ThemeData.light().copyWith(
                                 primaryColor: Colors.purple,
                                 accentColor: Colors.purple,
-                                colorScheme: ColorScheme.light(primary: Colors.purple),
-                                buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+                                colorScheme:
+                                    ColorScheme.light(primary: Colors.purple),
+                                buttonTheme: ButtonThemeData(
+                                    textTheme: ButtonTextTheme.primary),
                               ),
                               child: child!,
                             );
@@ -97,14 +164,59 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                         if (fechaSeleccionada != null &&
                             fechaSeleccionada != _fechaInicio) {
                           setState(() {
-                            _fechaInicio = fechaSeleccionada;
+                            _fechaInicio = DateTime(
+                              fechaSeleccionada.year,
+                              fechaSeleccionada.month,
+                              fechaSeleccionada.day,
+                              _horaInicio.hour,
+                              _horaInicio.minute,
+                            );
                           });
                         }
                       },
                     ),
                     ListTile(
-                      title: Text("Fecha de fin: ${_fechaFin.toLocal().toString().split(' ')[0]}"),
-                      trailing: Icon(Icons.calendar_today, color: Colors.purple),
+                      title: Text(
+                          "Hora de inicio: ${_horaInicio.format(context)}"),
+                      trailing: Icon(Icons.access_time, color: Colors.purple),
+                      onTap: () async {
+                        TimeOfDay? horaSeleccionada = await showTimePicker(
+                          context: context,
+                          initialTime: _horaInicio,
+                          builder: (BuildContext context, Widget? child) {
+                            return Theme(
+                              data: ThemeData.light().copyWith(
+                                primaryColor: Colors.purple,
+                                accentColor: Colors.purple,
+                                colorScheme:
+                                    ColorScheme.light(primary: Colors.purple),
+                                buttonTheme: ButtonThemeData(
+                                    textTheme: ButtonTextTheme.primary),
+                              ),
+                              child: child!,
+                            );
+                          },
+                        );
+                        if (horaSeleccionada != null &&
+                            horaSeleccionada != _horaInicio) {
+                          setState(() {
+                            _horaInicio = horaSeleccionada;
+                            _fechaInicio = DateTime(
+                              _fechaInicio.year,
+                              _fechaInicio.month,
+                              _fechaInicio.day,
+                              _horaInicio.hour,
+                              _horaInicio.minute,
+                            );
+                          });
+                        }
+                      },
+                    ),
+                    ListTile(
+                      title: Text(
+                          "Fecha de fin: ${_fechaFin.toLocal().toString().split(' ')[0]}"),
+                      trailing:
+                          Icon(Icons.calendar_today, color: Colors.purple),
                       onTap: () async {
                         DateTime? fechaSeleccionada = await showDatePicker(
                           context: context,
@@ -116,8 +228,10 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                               data: ThemeData.light().copyWith(
                                 primaryColor: Colors.purple,
                                 accentColor: Colors.purple,
-                                colorScheme: ColorScheme.light(primary: Colors.purple),
-                                buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+                                colorScheme:
+                                    ColorScheme.light(primary: Colors.purple),
+                                buttonTheme: ButtonThemeData(
+                                    textTheme: ButtonTextTheme.primary),
                               ),
                               child: child!,
                             );
@@ -126,7 +240,49 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                         if (fechaSeleccionada != null &&
                             fechaSeleccionada != _fechaFin) {
                           setState(() {
-                            _fechaFin = fechaSeleccionada;
+                            _fechaFin = DateTime(
+                              fechaSeleccionada.year,
+                              fechaSeleccionada.month,
+                              fechaSeleccionada.day,
+                              _horaFin.hour,
+                              _horaFin.minute,
+                            );
+                          });
+                        }
+                      },
+                    ),
+                    ListTile(
+                      title: Text("Hora de fin: ${_horaFin.format(context)}"),
+                      trailing: Icon(Icons.access_time, color: Colors.purple),
+                      onTap: () async {
+                        TimeOfDay? horaSeleccionada = await showTimePicker(
+                          context: context,
+                          initialTime: _horaFin,
+                          builder: (BuildContext context, Widget? child) {
+                            return Theme(
+                              data: ThemeData.light().copyWith(
+                                primaryColor: Colors.purple,
+                                accentColor: Colors.purple,
+                                colorScheme:
+                                    ColorScheme.light(primary: Colors.purple),
+                                buttonTheme: ButtonThemeData(
+                                    textTheme: ButtonTextTheme.primary),
+                              ),
+                              child: child!,
+                            );
+                          },
+                        );
+                        if (horaSeleccionada != null &&
+                            horaSeleccionada != _horaFin) {
+                          setState(() {
+                            _horaFin = horaSeleccionada;
+                            _fechaFin = DateTime(
+                              _fechaFin.year,
+                              _fechaFin.month,
+                              _fechaFin.day,
+                              _horaFin.hour,
+                              _horaFin.minute,
+                            );
                           });
                         }
                       },
@@ -155,25 +311,22 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                 TextButton(
                   child: Text('Guardar'),
                   onPressed: () {
-                    final nuevaActividad = Actividad(
-                      titulo: _tituloController.text,
+                    final nuevaActividad = Actividades(
+                      idAct:
+                          'ID_GENERADO_AUTOMATICAMENTE', // Aquí puedes generar un ID único o usar un valor predeterminado
+                      nombre: _tituloController.text,
                       descripcion: _descripcionController.text,
                       fechaInicio: _fechaInicio,
                       fechaFin: _fechaFin,
+                      responsable:
+                          'RESPONSABLE_DEFAULT', // Aquí puedes poner un valor predeterminado o agregar un campo en el formulario para el responsable
+                      estado:
+                          'ESTADO_DEFAULT', // Aquí puedes poner un valor predeterminado o agregar un campo en el formulario para el estado
                     );
 
-                    setState(() {
-                      if (actividad == null) {
-                        actividadesPorDia[_selectedDay] = actividadesPorDia
-                            .putIfAbsent(_selectedDay, () => [])
-                          ..add(nuevaActividad);
-                      } else {
-                        final index =
-                            actividadesPorDia[_selectedDay]!.indexOf(actividad);
-                        actividadesPorDia[_selectedDay]![index] =
-                            nuevaActividad;
-                      }
-                    });
+                    _guardarActividades(nuevaActividad);
+
+                    setState(() {});
 
                     Navigator.of(context).pop();
                   },
@@ -192,6 +345,12 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
       appBar: AppBar(
         title: Text('Actividades CRECER'),
         backgroundColor: Colors.purple,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.download_rounded),
+            onPressed: _exportarActividadesDelMes,
+          ),
+        ],
       ),
       body: Column(
         children: <Widget>[
@@ -235,7 +394,7 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                   margin: const EdgeInsets.all(4.0),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Colors.purple,
+                    color: Colors.blue,
                     shape: BoxShape.circle,
                   ),
                   child: Text(
@@ -285,9 +444,9 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
               itemBuilder: (context, index) {
                 final actividad = actividadesPorDia[_selectedDay]![index];
                 return ListTile(
-                  title: Text(actividad.titulo),
+                  title: Text(actividad.nombre.toString()),
                   subtitle: Text(
-                      '${actividad.descripcion} (${actividad.fechaInicio.toLocal().toString().split(' ')[0]} - ${actividad.fechaFin.toLocal().toString().split(' ')[0]})'),
+                      '${actividad.descripcion} (${actividad.fechaInicio?.toLocal().toString().split(' ')[0] ?? 'Fecha desconocida'} ${TimeOfDay.fromDateTime(actividad.fechaInicio ?? DateTime.now()).format(context)} - ${actividad.fechaFin?.toLocal().toString().split(' ')[0] ?? 'Fecha desconocida'} ${TimeOfDay.fromDateTime(actividad.fechaFin ?? DateTime.now()).format(context)})'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -320,5 +479,16 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
         },
       ),
     );
+  }
+}
+
+class CronogramaValidate {
+  String? validarCampos(String nombre, String descripcion, DateTime fechaInicio,
+      DateTime fechaFin) {
+    if (nombre.isEmpty) return 'El nombre de la actividad es requerido.';
+    if (descripcion.isEmpty) return 'La descripción es requerida.';
+    if (fechaInicio.isAfter(fechaFin))
+      return 'La fecha de inicio no puede ser posterior a la fecha de fin.';
+    return null;
   }
 }
