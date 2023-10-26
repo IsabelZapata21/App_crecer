@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pdfWidgets;
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_application_2/models/cronograma/actividades.dart';
-import 'package:flutter_application_2/services/citas/citas_service.dart'; // Asegúrate de importar tu servicio
 
 void main() => runApp(MyApp());
 
@@ -27,64 +22,14 @@ class CronogramaScreen extends StatefulWidget {
 
 class _CronogramaScreenState extends State<CronogramaScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
+  //variables
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
-  Map<DateTime, List<Actividades>> actividadesPorDia = {};
 
-  final CitasService _citasService = CitasService(); // Instancia del servicio
+  Map<DateTime, List<Actividades>> actividadesPorDia = {};
 
   List<Actividades> _getActividadesForDay(DateTime day) {
     return actividadesPorDia[day] ?? [];
-  }
-
-  pdfWidgets.Document _crearPDF() {
-    final pdf = pdfWidgets.Document();
-
-    pdf.addPage(
-      pdfWidgets.Page(
-        build: (pdfWidgets.Context context) {
-          return pdfWidgets.ListView.builder(
-            itemCount: actividadesPorDia.length,
-            itemBuilder: (context, index) {
-              final actividades = actividadesPorDia.values.elementAt(index);
-              return pdfWidgets.Column(
-                children: actividades.map((actividad) {
-                  return pdfWidgets.Padding(
-                    padding: const pdfWidgets.EdgeInsets.all(8.0),
-                    child: pdfWidgets.Text(
-                      '${actividad.nombre} (${actividad.fechaInicio} - ${actividad.fechaFin})',
-                    ),
-                  );
-                }).toList(),
-              );
-            },
-          );
-        },
-      ),
-    );
-
-    return pdf;
-  }
-
-  Future<bool> _solicitarPermisoDeAlmacenamiento() async {
-    PermissionStatus status = await Permission.storage.status;
-
-    if (!status.isGranted) {
-      status = await Permission.storage.request();
-      if (!status.isGranted) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  void _exportarActividadesDelMes() async {
-    final pdf = _crearPDF();
-    // Aquí puedes guardar el PDF en el sistema de archivos o compartirlo
-    // Por ahora, solo mostraré un SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('PDF creado (aún no guardado)')),
-    );
   }
 
   void _guardarActividades(Actividades actividad) {
@@ -92,17 +37,7 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
       actividadesPorDia[_selectedDay] = [];
     }
     actividadesPorDia[_selectedDay]!.add(actividad);
-  }
-
-  void _exportarPDF() async {
-    bool tienePermiso = await _solicitarPermisoDeAlmacenamiento();
-    if (tienePermiso) {
-      _exportarActividadesDelMes();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Permiso de almacenamiento denegado')),
-      );
-    }
+    setState(() {});
   }
 
   void _mostrarFormulario({Actividades? actividad}) {
@@ -110,10 +45,13 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
         TextEditingController(text: actividad?.nombre ?? '');
     final _descripcionController =
         TextEditingController(text: actividad?.descripcion ?? '');
+    final _responsableController =
+        TextEditingController(text: actividad?.responsable ?? '');
     DateTime _fechaInicio = actividad?.fechaInicio ?? DateTime.now();
     DateTime _fechaFin = actividad?.fechaFin ?? DateTime.now();
     TimeOfDay _horaInicio = TimeOfDay.fromDateTime(_fechaInicio);
     TimeOfDay _horaFin = TimeOfDay.fromDateTime(_fechaFin);
+    String? _estado = actividad?.estado ?? 'Pendiente'; // Valor predeterminado
 
     showDialog(
       context: context,
@@ -135,7 +73,29 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                       controller: _descripcionController,
                       decoration: InputDecoration(labelText: 'Descripción'),
                     ),
-                    SizedBox(height: 10),
+                    TextField(
+                      controller: _responsableController,
+                      decoration: InputDecoration(labelText: 'Responsable'),
+                    ),
+                    DropdownButtonFormField<String>(
+                      value: _estado,
+                      items: ['Pendiente', 'Realizado', 'Cancelado']
+                          .map((String estado) {
+                        return DropdownMenuItem<String>(
+                          value: estado,
+                          child: Text(estado),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _estado = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Estado de la Actividad',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
                     ListTile(
                       title: Text(
                           "Fecha de inicio: ${_fechaInicio.toLocal().toString().split(' ')[0]}"),
@@ -147,19 +107,6 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                           initialDate: _fechaInicio,
                           firstDate: DateTime(2020),
                           lastDate: DateTime(2101),
-                          builder: (BuildContext context, Widget? child) {
-                            return Theme(
-                              data: ThemeData.light().copyWith(
-                                primaryColor: Colors.purple,
-                                accentColor: Colors.purple,
-                                colorScheme:
-                                    ColorScheme.light(primary: Colors.purple),
-                                buttonTheme: ButtonThemeData(
-                                    textTheme: ButtonTextTheme.primary),
-                              ),
-                              child: child!,
-                            );
-                          },
                         );
                         if (fechaSeleccionada != null &&
                             fechaSeleccionada != _fechaInicio) {
@@ -183,19 +130,6 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                         TimeOfDay? horaSeleccionada = await showTimePicker(
                           context: context,
                           initialTime: _horaInicio,
-                          builder: (BuildContext context, Widget? child) {
-                            return Theme(
-                              data: ThemeData.light().copyWith(
-                                primaryColor: Colors.purple,
-                                accentColor: Colors.purple,
-                                colorScheme:
-                                    ColorScheme.light(primary: Colors.purple),
-                                buttonTheme: ButtonThemeData(
-                                    textTheme: ButtonTextTheme.primary),
-                              ),
-                              child: child!,
-                            );
-                          },
                         );
                         if (horaSeleccionada != null &&
                             horaSeleccionada != _horaInicio) {
@@ -223,19 +157,6 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                           initialDate: _fechaFin,
                           firstDate: DateTime(2020),
                           lastDate: DateTime(2101),
-                          builder: (BuildContext context, Widget? child) {
-                            return Theme(
-                              data: ThemeData.light().copyWith(
-                                primaryColor: Colors.purple,
-                                accentColor: Colors.purple,
-                                colorScheme:
-                                    ColorScheme.light(primary: Colors.purple),
-                                buttonTheme: ButtonThemeData(
-                                    textTheme: ButtonTextTheme.primary),
-                              ),
-                              child: child!,
-                            );
-                          },
                         );
                         if (fechaSeleccionada != null &&
                             fechaSeleccionada != _fechaFin) {
@@ -258,19 +179,6 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                         TimeOfDay? horaSeleccionada = await showTimePicker(
                           context: context,
                           initialTime: _horaFin,
-                          builder: (BuildContext context, Widget? child) {
-                            return Theme(
-                              data: ThemeData.light().copyWith(
-                                primaryColor: Colors.purple,
-                                accentColor: Colors.purple,
-                                colorScheme:
-                                    ColorScheme.light(primary: Colors.purple),
-                                buttonTheme: ButtonThemeData(
-                                    textTheme: ButtonTextTheme.primary),
-                              ),
-                              child: child!,
-                            );
-                          },
                         );
                         if (horaSeleccionada != null &&
                             horaSeleccionada != _horaFin) {
@@ -313,15 +221,13 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                   onPressed: () {
                     final nuevaActividad = Actividades(
                       idAct:
-                          'ID_GENERADO_AUTOMATICAMENTE', // Aquí puedes generar un ID único o usar un valor predeterminado
+                          'ID_GENERADO_AUTOMATICAMENTE', // Aquí puedes generar un ID o usar una función para ello
                       nombre: _tituloController.text,
                       descripcion: _descripcionController.text,
                       fechaInicio: _fechaInicio,
                       fechaFin: _fechaFin,
-                      responsable:
-                          'RESPONSABLE_DEFAULT', // Aquí puedes poner un valor predeterminado o agregar un campo en el formulario para el responsable
-                      estado:
-                          'ESTADO_DEFAULT', // Aquí puedes poner un valor predeterminado o agregar un campo en el formulario para el estado
+                      responsable: _responsableController.text,
+                      estado: _estado.toString(),
                     );
 
                     _guardarActividades(nuevaActividad);
@@ -345,12 +251,6 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
       appBar: AppBar(
         title: Text('Actividades CRECER'),
         backgroundColor: Colors.purple,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.download_rounded),
-            onPressed: _exportarActividadesDelMes,
-          ),
-        ],
       ),
       body: Column(
         children: <Widget>[
@@ -482,13 +382,22 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
   }
 }
 
-class CronogramaValidate {
-  String? validarCampos(String nombre, String descripcion, DateTime fechaInicio,
-      DateTime fechaFin) {
-    if (nombre.isEmpty) return 'El nombre de la actividad es requerido.';
-    if (descripcion.isEmpty) return 'La descripción es requerida.';
-    if (fechaInicio.isAfter(fechaFin))
-      return 'La fecha de inicio no puede ser posterior a la fecha de fin.';
-    return null;
-  }
+class Actividades {
+  final String idAct;
+  final String nombre;
+  final String descripcion;
+  final DateTime? fechaInicio;
+  final DateTime? fechaFin;
+  final String responsable;
+  final String estado;
+
+  Actividades({
+    required this.idAct,
+    required this.nombre,
+    required this.descripcion,
+    this.fechaInicio,
+    this.fechaFin,
+    required this.responsable,
+    required this.estado,
+  });
 }
