@@ -74,14 +74,25 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                     ),
                     SizedBox(height: 10),
                     ListTile(
-                      title: Text("Fecha de inicio: $_fechaInicio"),
-                      trailing: Icon(Icons.calendar_today),
+                      title: Text("Fecha de inicio: ${_fechaInicio.toLocal().toString().split(' ')[0]}"),
+                      trailing: Icon(Icons.calendar_today, color: Colors.purple),
                       onTap: () async {
                         DateTime? fechaSeleccionada = await showDatePicker(
                           context: context,
                           initialDate: _fechaInicio,
                           firstDate: DateTime(2020),
                           lastDate: DateTime(2101),
+                          builder: (BuildContext context, Widget? child) {
+                            return Theme(
+                              data: ThemeData.light().copyWith(
+                                primaryColor: Colors.purple,
+                                accentColor: Colors.purple,
+                                colorScheme: ColorScheme.light(primary: Colors.purple),
+                                buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+                              ),
+                              child: child!,
+                            );
+                          },
                         );
                         if (fechaSeleccionada != null &&
                             fechaSeleccionada != _fechaInicio) {
@@ -92,14 +103,25 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                       },
                     ),
                     ListTile(
-                      title: Text("Fecha de fin: $_fechaFin"),
-                      trailing: Icon(Icons.calendar_today),
+                      title: Text("Fecha de fin: ${_fechaFin.toLocal().toString().split(' ')[0]}"),
+                      trailing: Icon(Icons.calendar_today, color: Colors.purple),
                       onTap: () async {
                         DateTime? fechaSeleccionada = await showDatePicker(
                           context: context,
                           initialDate: _fechaFin,
                           firstDate: DateTime(2020),
                           lastDate: DateTime(2101),
+                          builder: (BuildContext context, Widget? child) {
+                            return Theme(
+                              data: ThemeData.light().copyWith(
+                                primaryColor: Colors.purple,
+                                accentColor: Colors.purple,
+                                colorScheme: ColorScheme.light(primary: Colors.purple),
+                                buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+                              ),
+                              child: child!,
+                            );
+                          },
                         );
                         if (fechaSeleccionada != null &&
                             fechaSeleccionada != _fechaFin) {
@@ -213,7 +235,7 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                   margin: const EdgeInsets.all(4.0),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: Colors.purple,
                     shape: BoxShape.circle,
                   ),
                   child: Text(

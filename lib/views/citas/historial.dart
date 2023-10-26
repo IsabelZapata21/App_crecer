@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/models/citas/cita.dart';
 import 'package:flutter_application_2/services/citas/citas_service.dart';
+import 'package:flutter_application_2/models/citas/paciente.dart';
+import 'package:flutter_application_2/models/citas/psicologo.dart';
+import 'package:flutter_application_2/services/citas/pacientes_service.dart';
+import 'package:flutter_application_2/services/citas/psicologos_service.dart';
 
 class HistorialCitas extends StatefulWidget {
   @override
@@ -93,53 +97,72 @@ class _HistorialCitasState extends State<HistorialCitas> {
       ),
     );
   }
-
 void _mostrarDetallesCita(Citas cita) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Detalles de la Cita'),
-        content: SingleChildScrollView( // Añadido para manejar contenido que podría ser más largo
-          child: ListBody( // Usamos ListBody en lugar de Column
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.calendar_today),
-                title: Text('Fecha'),
-                subtitle: Text('${cita.fechaCita?.toLocal().toString().split(' ')[0]}'),
-              ),
-              ListTile(
-                leading: Icon(Icons.access_time),
-                title: Text('Hora'),
-                subtitle: Text('${cita.horaCita}'),
-              ),
-              ListTile(
-                leading: Icon(Icons.description),
-                title: Text('Descripción'),
-                subtitle: Text('${cita.descripcion ?? ''}'),
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Paciente'),
-                subtitle: Text('${cita.idPaciente}'), // Aquí deberías mostrar el nombre del paciente en lugar del ID
-              ),
-              ListTile(
-                leading: Icon(Icons.person_outline),
-                title: Text('Psicólogo'),
-                subtitle: Text('${cita.idPsicologo}'), // Aquí deberías mostrar el nombre del psicólogo en lugar del ID
-              ),
-              ListTile(
-                leading: Icon(Icons.medical_services),
-                title: Text('Especialidad'),
-                subtitle: Text('${cita.idEspecialidad}'), // Aquí deberías mostrar el nombre de la especialidad en lugar del ID
-              ),
-              ListTile(
-                leading: Icon(Icons.check_circle),
-                title: Text('Estado'),
-                subtitle: Text('${cita.estado}'),
-              ),
-            ],
-          ),
+        title: Text('Detalles de la Cita', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: [
+                Icon(Icons.calendar_today, color: Colors.purple),
+                SizedBox(width: 8),
+                Text('Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}'),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.access_time, color: Colors.purple),
+                SizedBox(width: 8),
+                Text('Hora: ${cita.horaCita}'),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.note, color: Colors.purple),
+                SizedBox(width: 8),
+                Expanded(child: Text('Descripción: ${cita.descripcion ?? ''}')),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.person, color: Colors.purple),
+                SizedBox(width: 8),
+                Text('Paciente: ${cita.idPaciente ?? 'Desconocido'}'),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.person_outline, color: Colors.purple),
+                SizedBox(width: 8),
+                Text('Psicólogo: ${cita.idPsicologo ?? 'Desconocido'}'),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.medical_services, color: Colors.purple),
+                SizedBox(width: 8),
+                Text('Especialidad: ${cita.idEspecialidad ?? 'Desconocido'}'),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.event_note, color: Colors.purple),
+                SizedBox(width: 8),
+                Text('Estado: ${cita.estado}'),
+              ],
+            ),
+          ],
         ),
         actions: <Widget>[
           TextButton(
@@ -153,6 +176,7 @@ void _mostrarDetallesCita(Citas cita) {
     },
   );
 }
+
 
   Widget _buildCitaItem({required String fecha, required String hora, required String descripcion, required bool isPast}) {
     return Card(
@@ -188,7 +212,7 @@ void _mostrarDetallesCita(Citas cita) {
           _filtroSeleccionado = newValue!;
         });
       },
-      items: <String>['Todas', 'Confirmada', 'Pendiente', 'Cancelada']
+      items: <String>['Todas', 'Confirmada', 'Pendiente', 'Cancelado']
           .map<DropdownMenuItem<String>>(
             (String value) => DropdownMenuItem<String>(
               value: value,
