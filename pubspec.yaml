@@ -46,6 +46,7 @@ dev_dependencies:
   camera: ^0.9.4+5
   printing: ^5.9.2
   permission_handler: ^10.2.0
+  intl: ^0.17.0
 
 
 

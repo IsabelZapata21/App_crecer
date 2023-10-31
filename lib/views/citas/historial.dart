@@ -13,6 +13,33 @@ class HistorialCitas extends StatefulWidget {
 
 class _HistorialCitasState extends State<HistorialCitas> {
   String _filtroSeleccionado = 'Todas'; // Por defecto, muestra todas las citas
+  List<Psicologo>? psicologos;
+  List<Pacientes>? pacientes;
+  @override
+void initState() {
+  super.initState();
+  _cargarDatos();
+}
+
+void _cargarDatos() async {
+  psicologos = await PsicologoService().obtenerPsicologos();
+  pacientes = await PacienteService().obtenerDatos();
+  setState(() {});  // Refrescar el widget después de cargar los datos.
+}
+
+String obtenerNombrePacientePorId(String? idPaciente) {
+  if (idPaciente == null) return 'Desconocido';
+  final paciente = pacientes?.firstWhere((p) => p.id == idPaciente);
+  return paciente?.nombre ?? 'Desconocido';
+}
+
+String obtenerNombrePsicologoPorId(String? idPsicologo) {
+  if (idPsicologo == null) return 'Desconocido';
+  final psicologo = psicologos?.firstWhere((p) => p.id == idPsicologo);
+  return psicologo?.nombres ?? 'Desconocido';
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +162,7 @@ void _mostrarDetallesCita(Citas cita) {
               children: [
                 Icon(Icons.person, color: Colors.purple),
                 SizedBox(width: 8),
-                Text('Paciente: ${cita.idPaciente ?? 'Desconocido'}'),
+                Text('Paciente: ${obtenerNombrePacientePorId(cita.idPaciente)}'),
               ],
             ),
             SizedBox(height: 8),
@@ -143,7 +170,7 @@ void _mostrarDetallesCita(Citas cita) {
               children: [
                 Icon(Icons.person_outline, color: Colors.purple),
                 SizedBox(width: 8),
-                Text('Psicólogo: ${cita.idPsicologo ?? 'Desconocido'}'),
+                Text('Psicólogo: ${obtenerNombrePsicologoPorId(cita.idPsicologo)}'),
               ],
             ),
             SizedBox(height: 8),
@@ -165,6 +192,13 @@ void _mostrarDetallesCita(Citas cita) {
           ],
         ),
         actions: <Widget>[
+          TextButton(
+            child: Text('Editar'),
+            onPressed: () {
+              _editarCita(cita);
+              Navigator.of(context).pop(); // Cierra el AlertDialog después de editar.
+            },
+          ),
           TextButton(
             child: Text('Cerrar'),
             onPressed: () {
@@ -222,4 +256,9 @@ void _mostrarDetallesCita(Citas cita) {
           .toList(),
     );
   }
+  void _editarCita(Citas cita) {
+  print('Editar cita con ID: ${cita.id}');
+  // Aquí puedes agregar la lógica para editar la cita.
+}
+
 }

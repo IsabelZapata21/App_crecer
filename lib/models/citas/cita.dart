@@ -65,7 +65,7 @@ class Citas {
         "id_paciente": idPaciente,
         "id_especialidad": idEspecialidad,
         "id_psicologo": idPsicologo,
-        "fecha_cita": "${fechaCita?.year?.toString()?.padLeft(4, '0')}-${fechaCita?.month?.toString()?.padLeft(2, '0')}-${fechaCita?.day?.toString()?.padLeft(2, '0')}",
+        "fecha_cita": "${fechaCita?.year.toString().padLeft(4, '0')}-${fechaCita?.month.toString().padLeft(2, '0')}-${fechaCita?.day.toString().padLeft(2, '0')}",
         "hora_cita": horaCita,
         "estado": estado,
         "created_at": createdAt,

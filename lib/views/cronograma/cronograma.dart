@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:flutter_application_2/services/cronograma/actividades_service.dart';
 import 'package:flutter_application_2/models/cronograma/actividades.dart';
+import 'package:intl/intl.dart';
 
 void main() => runApp(MyApp());
 
@@ -39,26 +40,20 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
     return actividadesPorDia[day] ?? [];
   }
 
-  @override
-  void initState() {
-    estadoActividad = estadosActividad[0];
-    super.initState();
-  }
-
   void _guardarActividades(Actividades actividad) async {
     Map<String, dynamic> actData = {
-      'actividad': actividad.idAct,
       'nombre': actividad.nombre,
       'descripcion': actividad.descripcion,
       'fechaInicio': actividad.fechaInicio.toString(),
       'fechaFin': actividad.fechaFin.toString(),
       'responsable': 1,
-      'estado': estadoActividad
+      'estado': actividad.estado
     };
     print(actData);
     try {
       String mensaje = await ActividadesService().guardarActividades(actData);
       // Si se guardó con éxito, muestra un dialog
+      print(mensaje);
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -110,7 +105,7 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
     DateTime _fechaFin = actividad?.fechaFin ?? DateTime.now();
     TimeOfDay _horaInicio = TimeOfDay.fromDateTime(_fechaInicio);
     TimeOfDay _horaFin = TimeOfDay.fromDateTime(_fechaFin);
-    String? _estado = actividad?.estado ?? 'Pendiente'; // Valor predeterminado
+    String _estado = actividad?.estado ?? 'Pendiente'; // Valor predeterminado
 
     showDialog(
       context: context,
@@ -146,9 +141,10 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                         );
                       }).toList(),
                       onChanged: (value) {
-                        setState(() {
-                          _estado = value;
-                        });
+                        if (value != null)
+                          setState(() {
+                            _estado = value;
+                          });
                       },
                       decoration: InputDecoration(
                         labelText: 'Estado de la Actividad',
@@ -157,7 +153,7 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                     ),
                     ListTile(
                       title: Text(
-                          "Fecha de inicio: ${_fechaInicio.toLocal().toString().split(' ')[0]}"),
+                          "Fecha de inicio: ${DateFormat('dd-MM-yy').format(_fechaInicio)}"),
                       trailing:
                           Icon(Icons.calendar_today, color: Colors.purple),
                       onTap: () async {
@@ -207,7 +203,7 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                     ),
                     ListTile(
                       title: Text(
-                          "Fecha de fin: ${_fechaFin.toLocal().toString().split(' ')[0]}"),
+                          "Fecha de fin: ${DateFormat('dd-MM-yy').format(_fechaFin)}"),
                       trailing:
                           Icon(Icons.calendar_today, color: Colors.purple),
                       onTap: () async {
@@ -293,14 +289,14 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                       _horaFin.minute,
                     );
                     final nuevaActividad = Actividades(
-                      idAct:
+                      idAct: // Aquí puedes generar un ID o usar una función para ello
                           '0', // Aquí puedes generar un ID o susar una función para ello
                       nombre: _tituloController.text,
                       descripcion: _descripcionController.text,
                       fechaInicio: _fechaInicio,
                       fechaFin: _fechaFin,
                       responsable: _responsableController.text,
-                      estado: _estado.toString(),
+                      estado: _estado,
                     );
 
                     _guardarActividades(nuevaActividad);
@@ -407,7 +403,7 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              "Actividades para ${_selectedDay.toLocal().toString().split(' ')[0]}",
+              "Actividades para ${DateFormat('dd-MM-yy').format(_selectedDay)}",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
@@ -453,24 +449,4 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
       ),
     );
   }
-}
-
-class Actividades {
-  final String idAct;
-  final String nombre;
-  final String descripcion;
-  final DateTime? fechaInicio;
-  final DateTime? fechaFin;
-  final String responsable;
-  final String estado;
-
-  Actividades({
-    required this.idAct,
-    required this.nombre,
-    required this.descripcion,
-    this.fechaInicio,
-    this.fechaFin,
-    required this.responsable,
-    required this.estado,
-  });
 }
