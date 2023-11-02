@@ -1,8 +1,9 @@
 import '../../models/citas/paciente.dart';
 import '../../models/citas/psicologo.dart';
+import '../../models/citas/especialidad.dart';
 
 class RegistroValidate {
-String? validarCampos(Pacientes? paciente, Psicologo? psicologo, String descripcion, String? estadoCita) {
+String? validarCampos(Pacientes? paciente, Psicologo? psicologo, descripcion, String? estadoCita) {
     if (paciente == null) {
       return 'Por favor, selecciona un paciente.';
     }

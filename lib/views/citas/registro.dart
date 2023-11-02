@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_2/models/citas/especialidad.dart';
 import 'package:flutter_application_2/models/citas/paciente.dart';
 import 'package:flutter_application_2/models/citas/psicologo.dart';
 import 'package:flutter_application_2/services/citas/citas_service.dart';
 import 'package:flutter_application_2/services/citas/pacientes_service.dart';
 import 'package:flutter_application_2/services/citas/psicologos_service.dart';
 import 'package:flutter_application_2/viewmodels/citas/registro_viewmodel.dart';
+import 'package:time_range_picker/time_range_picker.dart';
 
 class Registro extends StatelessWidget {
   const Registro({super.key});
@@ -33,7 +35,6 @@ class _CitasPageState extends State<CitasPage> {
   // Variables para almacenar los datos de la cita
   Pacientes? paciente;
   Psicologo? psicologo;
-  int especialidad = 1;
   DateTime fechaCita = DateTime.now();
   TimeOfDay horaCita = TimeOfDay.now();
   String? estadoCita;
@@ -42,6 +43,7 @@ class _CitasPageState extends State<CitasPage> {
   final telController = TextEditingController();
   final dirController = TextEditingController();
   final desController = TextEditingController();
+  final espController = TextEditingController();
   //instancia del viewmodel
   final viewModel = RegistroValidate();
 
@@ -64,89 +66,88 @@ class _CitasPageState extends State<CitasPage> {
     super.initState();
   }
 
-void guardarCita() async {
-  String? error = viewModel.validarCampos(paciente, psicologo, desController.text, estadoCita);
-  if (error != null) {
-    // Mostrar el error en un showDialog
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Error'),
-        content: Text(error),
-        actions: [
-          TextButton(
-            child: Text('Aceptar'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
-    return;
+  void guardarCita() async {
+    String? error = viewModel.validarCampos(
+        paciente, psicologo, desController.text, estadoCita);
+    if (error != null) {
+      // Mostrar el error en un showDialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text(error),
+          actions: [
+            TextButton(
+              child: Text('Aceptar'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    Map<String, dynamic> citaData = {
+      'paciente': paciente?.id,
+      'descripcion': desController.text,
+      'espeialidad': 1,
+      'psicologo': psicologo?.id,
+      'fechaCita': fechaCita.toString(),
+      'horaCita': horaCita.format(context),
+      'estadoCita': estadoCita,
+      'created': created,
+    };
+
+    try {
+      String mensaje = await CitasService().programarCita(citaData);
+      // Si se guardó con éxito, muestra un dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Éxito'),
+          content: Text(mensaje),
+          actions: [
+            TextButton(
+              child: Text('Aceptar'),
+              onPressed: () {
+                // Limpia los campos y reinicia el estado
+                _resetForm();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      // Aquí puedes manejar el caso en el que no se pudo guardar la cita
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text(e.toString()),
+          actions: [
+            TextButton(
+              child: Text('Aceptar'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
-  Map<String, dynamic> citaData = {
-    'paciente': paciente?.id,
-    'descripcion': desController.text,
-    'especialidad': especialidad,
-    'psicologo': psicologo?.id,
-    'fechaCita': fechaCita.toString(),
-    'horaCita': horaCita.format(context),
-    'estadoCita': estadoCita,
-    'created': created,
-  };
-
-  try {
-    String mensaje = await CitasService().programarCita(citaData);
-    // Si se guardó con éxito, muestra un dialog
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Éxito'),
-        content: Text(mensaje),
-        actions: [
-          TextButton(
-            child: Text('Aceptar'),
-            onPressed: () {
-              // Limpia los campos y reinicia el estado
-              _resetForm();
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      ),
-    );
-  } catch (e) {
-    // Aquí puedes manejar el caso en el que no se pudo guardar la cita
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Error'),
-        content: Text(e.toString()),
-        actions: [
-          TextButton(
-            child: Text('Aceptar'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
+  void _resetForm() {
+    setState(() {
+      paciente = null;
+      psicologo = null;
+      fechaCita = DateTime.now();
+      horaCita = TimeOfDay.now();
+      estadoCita = estadosCita[0];
+      telController.clear();
+      dirController.clear();
+      desController.clear();
+    });
   }
-}
-
-void _resetForm() {
-  setState(() {
-    paciente = null;
-    psicologo = null;
-    especialidad = 1;
-    fechaCita = DateTime.now();
-    horaCita = TimeOfDay.now();
-    estadoCita = estadosCita[0];
-    telController.clear();
-    dirController.clear();
-    desController.clear();
-  });
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -169,11 +170,12 @@ void _resetForm() {
                     child: Text('Seleccionar'),
                   ),
                   ...pacientes?.map((p) {
-                    return DropdownMenuItem<Pacientes?>(
-                      value: p,
-                      child: Text('${p.nombre}'),
-                    );
-                  }).toList()??[],
+                        return DropdownMenuItem<Pacientes?>(
+                          value: p,
+                          child: Text('${p.nombre}'),
+                        );
+                      }).toList() ??
+                      [],
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -205,10 +207,21 @@ void _resetForm() {
                 onChanged: (value) {
                   setState(() {
                     psicologo = value;
+                    espController.text = value?.especialidad ?? '';
                   });
                 },
                 decoration: InputDecoration(
                   labelText: 'Psicólogo',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: espController,
+                enabled: false, // Deshabilita la edición
+                decoration: InputDecoration(
+                  labelText: 'Especialidad',
+                  prefixIcon: Icon(Icons.phone, color: Colors.purple),
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -265,9 +278,13 @@ void _resetForm() {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
-                  final horaSeleccionada = await showTimePicker(
+                  TimeOfDay newTimeOfDay =
+                      horaCita.replacing(hour: (horaCita.hour + 1) % 24);
+                  final horaSeleccionada = await showTimeRangePicker(
+                    disabledTime:
+                        TimeRange(startTime: horaCita, endTime: newTimeOfDay),
+                    start: horaCita,
                     context: context,
-                    initialTime: horaCita,
                   );
                   if (horaSeleccionada != null &&
                       horaSeleccionada != horaCita) {

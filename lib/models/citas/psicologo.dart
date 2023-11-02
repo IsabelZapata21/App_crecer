@@ -1,7 +1,7 @@
 class Psicologo {
   Psicologo({
     required this.id,
-    required this.idEspecialidad,
+    required this.especialidad,
     required this.dni,
     required this.nombres,
     required this.apellidos,
@@ -13,7 +13,7 @@ class Psicologo {
   });
 
   final String? id;
-  final String? idEspecialidad;
+  final String? especialidad;
   final String? dni;
   final String? nombres;
   final String? apellidos;
@@ -25,7 +25,7 @@ class Psicologo {
 
   Psicologo copyWith({
     String? id,
-    String? idEspecialidad,
+    String? especialidad,
     String? dni,
     String? nombres,
     String? apellidos,
@@ -37,7 +37,7 @@ class Psicologo {
   }) {
     return Psicologo(
       id: id ?? this.id,
-      idEspecialidad: idEspecialidad ?? this.idEspecialidad,
+      especialidad: especialidad ?? this.especialidad,
       dni: dni ?? this.dni,
       nombres: nombres ?? this.nombres,
       apellidos: apellidos ?? this.apellidos,
@@ -52,7 +52,7 @@ class Psicologo {
   factory Psicologo.fromJson(Map<String, dynamic> json) {
     return Psicologo(
       id: json["id"],
-      idEspecialidad: json["id_especialidad"],
+      especialidad: json["especialidad"],
       dni: json["dni"],
       nombres: json["nombres"],
       apellidos: json["apellidos"],
@@ -66,7 +66,7 @@ class Psicologo {
 
   Map<String, dynamic> toJson() => {
         "id": id,
-        "id_especialidad": idEspecialidad,
+        "especialidad": especialidad,
         "dni": dni,
         "nombres": nombres,
         "apellidos": apellidos,
@@ -80,6 +80,6 @@ class Psicologo {
 
   @override
   String toString() {
-    return "$id, $idEspecialidad, $dni, $nombres, $apellidos, $genero, $telefono, $nacimiento, $correo, $nacionalidad, ";
+    return "$id, $especialidad, $dni, $nombres, $apellidos, $genero, $telefono, $nacimiento, $correo, $nacionalidad, ";
   }
 }

@@ -49,7 +49,6 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
       'responsable': 1,
       'estado': actividad.estado
     };
-    print(actData);
     try {
       String mensaje = await ActividadesService().guardarActividades(actData);
       // Si se guardó con éxito, muestra un dialog
