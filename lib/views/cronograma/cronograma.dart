@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/views/cronograma/actividad.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:flutter_application_2/services/cronograma/actividades_service.dart';
 import 'package:flutter_application_2/models/cronograma/actividades.dart';
@@ -98,6 +97,61 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
               child: Text('Aceptar'),
               onPressed: () {
                 // Limpia los campos y reinicia el estado
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      // Aquí puedes manejar el caso en el que no se pudo guardar la cita
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text(e.toString()),
+          actions: [
+            TextButton(
+              child: Text('Aceptar'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+    }
+    setState(() {});
+  }
+
+  void _eliminarActividades(Actividades actividad) async {
+    if (actividad.idAct == null) {
+      return showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Actividad no seleccionada'),
+          actions: [
+            TextButton(
+              child: Text('Aceptar'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+    }
+    try {
+      String mensaje =
+          await ActividadesService().eliminarActividades(id: actividad.idAct);
+      // Si se guardó con éxito, muestra un dialog
+      print(mensaje);
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Éxito'),
+          content: Text(mensaje),
+          actions: [
+            TextButton(
+              child: Text('Aceptar'),
+              onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
@@ -659,9 +713,10 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                               IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
-                                  setState(() {
-                                    // actividadesPorDia[_selectedDay]!.removeAt(index);
-                                  });
+                                  if (actividad != null) {
+                                    _eliminarActividades(actividad);
+                                  }
+                                  setState(() {});
                                 },
                               ),
                             ],

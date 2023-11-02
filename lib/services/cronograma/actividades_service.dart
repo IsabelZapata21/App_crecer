@@ -27,7 +27,19 @@ class ActividadesService {
     if (response.statusCode == 200) {
       return response.body;
     } else {
-      throw Exception("Error al guardar la actividad: ${response.body}");
+      throw Exception("Error al actualizar la actividad: ${response.body}");
+    }
+  }
+
+  Future<String> eliminarActividades({int? id}) async {
+    final response = await http.delete(
+      Uri.parse(
+          "${ApiService.baseUrl}/cronograma/eliminar_actividad.php?id_act=$id"),
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception("Error al eliminar la actividad: ${response.body}");
     }
   }
 
