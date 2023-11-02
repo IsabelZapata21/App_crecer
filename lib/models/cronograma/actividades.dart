@@ -8,6 +8,7 @@ class Actividades {
     required this.horaInicio,
     required this.horaFin,
     required this.responsable,
+    this.idResponsable,
     required this.estado,
   });
 
@@ -19,6 +20,7 @@ class Actividades {
   final String? horaInicio;
   final String? horaFin;
   final String? responsable;
+  final int? idResponsable;
   final String? estado;
 
   Actividades copyWith({
@@ -30,6 +32,7 @@ class Actividades {
     String? horaInicio,
     String? horaFin,
     String? responsable,
+    int? idResponsable,
     String? estado,
   }) {
     return Actividades(
@@ -41,6 +44,7 @@ class Actividades {
       horaInicio: horaInicio ?? this.horaInicio,
       horaFin: horaFin ?? this.horaFin,
       responsable: responsable ?? this.responsable,
+      idResponsable: idResponsable ?? this.idResponsable,
       estado: estado ?? this.estado,
     );
   }
@@ -55,25 +59,26 @@ class Actividades {
       horaInicio: json["hora_inicio"],
       horaFin: json["hora_fin"],
       responsable: json["responsable"],
+      idResponsable: json["id_responsable"],
       estado: json["estado"],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "id_act": idAct,
         "nombre": nombre,
         "descripcion": descripcion,
-        "fecha_inicio":
+        "fechaInicio":
             "${fechaInicio?.year.toString().padLeft(4, '0')}-${fechaInicio?.month.toString().padLeft(2, '0')}-${fechaInicio?.day.toString().padLeft(2, '0')}",
-        "fecha_fin":
+        "fechaFin":
             "${fechaFin?.year.toString().padLeft(4, '0')}-${fechaFin?.month.toString().padLeft(2, '0')}-${fechaFin?.day.toString().padLeft(2, '0')}",
-        "hora_inicio": horaInicio,
-        "hora_fin": horaFin,
-        "responsable": responsable,
+        "horaInicio": horaInicio,
+        "horaFin": horaFin,
+        "responsable": idResponsable,
+        "estado": estado,
       };
 
   @override
   String toString() {
-    return "$idAct, $nombre, $descripcion, $fechaInicio, $fechaFin, $horaInicio, $horaFin, $responsable, $estado, ";
+    return "$idAct, $nombre, $descripcion, $fechaInicio, $fechaFin, $horaInicio, $horaFin, $responsable, $idResponsable, $estado, ";
   }
 }

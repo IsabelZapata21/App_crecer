@@ -22,16 +22,9 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
   List<DateTime> fechasGuardadas = [];
 
   void _guardarActividades(Actividades actividad) async {
-    Map<String, dynamic> actData = {
-      'nombre': actividad.nombre,
-      'descripcion': actividad.descripcion,
-      'fechaInicio': actividad.fechaInicio.toString(),
-      'fechaFin': actividad.fechaFin.toString(),
-      'responsable': 1,
-      'estado': actividad.estado
-    };
+    print('actData ${actividad.toJson()}');
     try {
-      String mensaje = await ActividadesService().guardarActividades(actData);
+      String mensaje = await ActividadesService().guardarActividades(actividad.toJson());
       // Si se guardó con éxito, muestra un dialog
       print(mensaje);
       showDialog(
@@ -370,6 +363,7 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                       fechaInicio: _fechaInicio,
                       fechaFin: _fechaFin,
                       responsable: _responsableController.text,
+                      idResponsable: 1,
                       estado: _estado,
                       horaInicio: _fechaInicio.toString(),
                       horaFin: _fechaFin.toString(),
