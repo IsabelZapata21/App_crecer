@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/models/citas/especialidad.dart';
 import 'package:flutter_application_2/models/citas/paciente.dart';
 import 'package:flutter_application_2/models/citas/psicologo.dart';
 import 'package:flutter_application_2/services/citas/citas_service.dart';
 import 'package:flutter_application_2/services/citas/pacientes_service.dart';
 import 'package:flutter_application_2/services/citas/psicologos_service.dart';
 import 'package:flutter_application_2/viewmodels/citas/registro_viewmodel.dart';
+import 'package:intl/intl.dart';
 import 'package:time_range_picker/time_range_picker.dart';
 
 class Registro extends StatelessWidget {
@@ -13,14 +13,7 @@ class Registro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Registro de cita',
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-      ),
-      home: CitasPage(),
-    );
+    return const CitasPage();
   }
 }
 
@@ -271,8 +264,8 @@ class _CitasPageState extends State<CitasPage> {
                   }
                 },
                 child: Text(
-                  "${fechaCita.toLocal()}".split(' ')[0],
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  DateFormat('EEEE, d MMMM y','es').format(fechaCita.toLocal()),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 16),

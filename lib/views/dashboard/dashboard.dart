@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/main.dart';
 import 'package:flutter_application_2/views/citas/citas.dart';
 import 'package:flutter_application_2/views/asistencia/asistencias.dart';
 import 'package:flutter_application_2/views/comuni/comunicacion.dart';

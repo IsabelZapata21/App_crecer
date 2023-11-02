@@ -130,10 +130,3 @@ class Reporte extends StatelessWidget {
       ),
     );
   }
-
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: Reporte(),
-  ));
-}
