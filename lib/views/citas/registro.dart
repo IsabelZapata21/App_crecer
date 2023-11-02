@@ -7,6 +7,8 @@ import 'package:flutter_application_2/services/citas/psicologos_service.dart';
 import 'package:flutter_application_2/viewmodels/citas/registro_viewmodel.dart';
 import 'package:intl/intl.dart';
 import 'package:time_range_picker/time_range_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class Registro extends StatelessWidget {
   const Registro({super.key});

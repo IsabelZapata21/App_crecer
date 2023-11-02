@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         primaryColor: Colors.purple,
-        // accentColor: Colors.orange,
+        colorScheme: ColorScheme.light(primary: Colors.purple),
         textTheme: TextTheme(
           bodyText1: TextStyle(fontFamily: "Poppins"),
           bodyText2: TextStyle(fontFamily: "Poppins"),

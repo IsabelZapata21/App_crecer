@@ -19,6 +19,11 @@ class CronogramaScreen extends StatefulWidget {
 }
 
 class _CronogramaScreenState extends State<CronogramaScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   CalendarFormat _calendarFormat = CalendarFormat.month;
   //variables
   Actividades? actividades;
@@ -28,6 +33,7 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
   DateTime fechaFin = DateTime.now();
   String? estadoActividad;
   List<String> estadosActividad = ['Pendiente', 'Realizada', 'Cancelada'];
+  List<DateTime> fechasGuardadas = [];
 
   Map<DateTime, List<Actividades>> actividadesPorDia = {};
 
@@ -294,7 +300,6 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                     );
 
                     _guardarActividades(nuevaActividad);
-
                     setState(() {});
 
                     Navigator.of(context).pop();
