@@ -7,7 +7,20 @@ import 'package:http/http.dart' as http;
 class ActividadesService {
   Future<String> guardarActividades(Map<String, dynamic> actData) async {
     final response = await http.post(
-      Uri.parse("${ApiService.baseUrl}/guardar_actividad.php"),
+      Uri.parse("${ApiService.baseUrl}/cronograma/guardar_actividad.php"),
+      //headers: {"Content-Type": "application/json"},
+      body: json.encode(actData),
+    );
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception("Error al guardar la actividad: ${response.body}");
+    }
+  }
+
+  Future<String> actualizarActividades(Map<String, dynamic> actData) async {
+    final response = await http.post(
+      Uri.parse("${ApiService.baseUrl}/cronograma/actualizar_actividad.php"),
       //headers: {"Content-Type": "application/json"},
       body: json.encode(actData),
     );
@@ -20,8 +33,7 @@ class ActividadesService {
 
   Future<List<Actividades>> obtenerListaActividades() async {
     final response = await http.get(
-      Uri.parse(
-          "${ApiService.baseUrl}/obtener_actividades.php"),
+      Uri.parse("${ApiService.baseUrl}/cronograma/obtener_actividades.php"),
     );
 
     if (response.statusCode == 200) {
@@ -34,12 +46,14 @@ class ActividadesService {
     }
   }
 
-  Future<List<Actividades>> obtenerActividadesPorFecha(DateTime fecha) async {
-    final response = await http.get(
-      Uri.parse(
-          "${ApiService.baseUrl}/obtener_por_feccha.php?fecha=${fecha.toLocal().toString().split(' ')[0]}"), // Asegúrate de reemplazar 'ruta_del_endpoint' con la ruta correcta
-    );
-
+  Future<List<Actividades>> obtenerActividadesPorFecha(
+      {DateTime? fecha}) async {
+    final uri = Uri.parse(fecha == null
+        ? "${ApiService.baseUrl}/cronograma/obtener_por_fecha.php"
+        : "${ApiService.baseUrl}/cronograma/obtener_por_fecha.php?fecha=${fecha.toLocal().toString().split(' ')[0]}");
+    final response = await http.get(uri);
+    print(uri);
+    print(response.body);
     if (response.statusCode == 200) {
       final List<dynamic> actividadesJson = json.decode(response.body);
       return actividadesJson.map((json) => Actividades.fromJson(json)).toList();
