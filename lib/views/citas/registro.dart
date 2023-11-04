@@ -7,8 +7,6 @@ import 'package:flutter_application_2/services/citas/psicologos_service.dart';
 import 'package:flutter_application_2/viewmodels/citas/registro_viewmodel.dart';
 import 'package:intl/intl.dart';
 import 'package:time_range_picker/time_range_picker.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 class Registro extends StatelessWidget {
   const Registro({super.key});
@@ -85,14 +83,14 @@ class _CitasPageState extends State<CitasPage> {
     Map<String, dynamic> citaData = {
       'paciente': paciente?.id,
       'descripcion': desController.text,
-      'espeialidad': 1,
+      'especialidad': 1,
       'psicologo': psicologo?.id,
       'fechaCita': fechaCita.toString(),
       'horaCita': horaCita.format(context),
       'estadoCita': estadoCita,
       'created': created,
     };
-
+print(citaData);
     try {
       String mensaje = await CitasService().programarCita(citaData);
       // Si se guardó con éxito, muestra un dialog
@@ -284,7 +282,7 @@ class _CitasPageState extends State<CitasPage> {
                   if (horaSeleccionada != null &&
                       horaSeleccionada != horaCita) {
                     setState(() {
-                      horaCita = horaSeleccionada;
+                      horaCita = horaSeleccionada.startTime;
                     });
                   }
                 },

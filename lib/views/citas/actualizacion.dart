@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/models/citas/paciente.dart';
 import 'package:flutter_application_2/models/citas/psicologo.dart';
-import 'package:flutter_application_2/services/citas/citas_service.dart';
-import 'package:flutter_application_2/services/citas/pacientes_service.dart';
-import 'package:flutter_application_2/services/citas/psicologos_service.dart';
-import 'package:flutter_application_2/viewmodels/citas/registro_viewmodel.dart';
 
 class ActualizarCita extends StatefulWidget {
   @override
@@ -70,7 +66,7 @@ class _ActualizarCitaState extends State<ActualizarCita> {
                     searchTerm = value;
                   },
                   decoration: InputDecoration(
-                    labelText: 'Buscar Cita por Paciente',
+                    labelText: 'Buscar cita por paciente',
                     border: OutlineInputBorder(),
                   ),
                 ),

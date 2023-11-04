@@ -5,6 +5,7 @@ import 'package:flutter_application_2/models/citas/paciente.dart';
 import 'package:flutter_application_2/models/citas/psicologo.dart';
 import 'package:flutter_application_2/services/citas/pacientes_service.dart';
 import 'package:flutter_application_2/services/citas/psicologos_service.dart';
+import 'package:flutter_application_2/views/citas/actualizacion.dart';
 
 class HistorialCitas extends StatefulWidget {
   @override
@@ -16,30 +17,34 @@ class _HistorialCitasState extends State<HistorialCitas> {
   List<Psicologo>? psicologos;
   List<Pacientes>? pacientes;
   @override
-void initState() {
-  super.initState();
-  _cargarDatos();
-}
+  void initState() {
+    super.initState();
+    _cargarDatos();
+  }
 
-void _cargarDatos() async {
-  psicologos = await PsicologoService().obtenerPsicologos();
-  pacientes = await PacienteService().obtenerDatos();
-  setState(() {});  // Refrescar el widget después de cargar los datos.
-}
+  void _cargarDatos() async {
+    psicologos = await PsicologoService().obtenerPsicologos();
+    pacientes = await PacienteService().obtenerDatos();
+    setState(() {}); // Refrescar el widget después de cargar los datos.
+  }
 
-String obtenerNombrePacientePorId(String? idPaciente) {
-  if (idPaciente == null) return 'Desconocido';
-  final paciente = pacientes?.firstWhere((p) => p.id == idPaciente);
-  return paciente?.nombre ?? 'Desconocido';
-}
+  String obtenerNombrePacientePorId(String? idPaciente) {
+    if (idPaciente == null) return 'Desconocido';
+    final paciente = pacientes?.firstWhere((p) => p.id == idPaciente);
+    return paciente?.nombre ?? 'Desconocido';
+  }
 
-String obtenerNombrePsicologoPorId(String? idPsicologo) {
-  if (idPsicologo == null) return 'Desconocido';
-  final psicologo = psicologos?.firstWhere((p) => p.id == idPsicologo);
-  return psicologo?.nombres ?? 'Desconocido';
-}
+  String obtenerNombrePsicologoPorId(String? idPsicologo) {
+    if (idPsicologo == null) return 'Desconocido';
+    final psicologo = psicologos?.firstWhere((p) => p.id == idPsicologo);
+    return psicologo?.nombres ?? 'Desconocido';
+  }
 
-
+  String obtenerNombreEspecialidadPorId(String? idPsicologo) {
+    if (idPsicologo == null) return 'Desconocido';
+    final psicologo = psicologos?.firstWhere((p) => p.id == idPsicologo);
+    return psicologo?.especialidad ?? 'Desconocido';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +107,9 @@ String obtenerNombrePsicologoPorId(String? idPsicologo) {
             );
           } else {
             final List<Citas> citas = snapshot.data!
-                .where((cita) => _filtroSeleccionado == 'Todas' || cita.estado == _filtroSeleccionado)
+                .where((cita) =>
+                    _filtroSeleccionado == 'Todas' ||
+                    cita.estado == _filtroSeleccionado)
                 .toList();
             return ListView.builder(
               itemCount: citas.length,
@@ -111,7 +118,8 @@ String obtenerNombrePsicologoPorId(String? idPsicologo) {
                 return GestureDetector(
                   onTap: () => _mostrarDetallesCita(cita),
                   child: _buildCitaItem(
-                    fecha: 'Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}',
+                    fecha:
+                        'Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}',
                     hora: 'Hora: ${cita.horaCita}',
                     descripcion: cita.descripcion ?? '',
                     isPast: false,
@@ -124,95 +132,106 @@ String obtenerNombrePsicologoPorId(String? idPsicologo) {
       ),
     );
   }
-void _mostrarDetallesCita(Citas cita) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Detalles de la Cita', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: [
-                Icon(Icons.calendar_today, color: Colors.purple),
-                SizedBox(width: 8),
-                Text('Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}'),
-              ],
+
+  void _mostrarDetallesCita(Citas cita) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Detalles de la cita',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, color: Colors.purple),
+                  SizedBox(width: 8),
+                  Text(
+                      'Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}'),
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.access_time, color: Colors.purple),
+                  SizedBox(width: 8),
+                  Text('Hora: ${cita.horaCita}'),
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.note, color: Colors.purple),
+                  SizedBox(width: 8),
+                  Expanded(
+                      child: Text('Descripción: ${cita.descripcion ?? ''}')),
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.person, color: Colors.purple),
+                  SizedBox(width: 8),
+                  Text(
+                      'Paciente: ${obtenerNombrePacientePorId(cita.idPaciente)}'),
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.person_outline, color: Colors.purple),
+                  SizedBox(width: 8),
+                  Text(
+                      'Psicólogo: ${obtenerNombrePsicologoPorId(cita.idPsicologo)}'),
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.medical_services, color: Colors.purple),
+                  SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                        'Especialidad: ${obtenerNombreEspecialidadPorId(cita.idPsicologo)}'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.event_note, color: Colors.purple),
+                  SizedBox(width: 8),
+                  Text('Estado: ${cita.estado}'),
+                ],
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Editar'),
+              onPressed: () {
+                _editarCita(cita); // Cierra el AlertDialog después de editar.
+              },
             ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.access_time, color: Colors.purple),
-                SizedBox(width: 8),
-                Text('Hora: ${cita.horaCita}'),
-              ],
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.note, color: Colors.purple),
-                SizedBox(width: 8),
-                Expanded(child: Text('Descripción: ${cita.descripcion ?? ''}')),
-              ],
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.person, color: Colors.purple),
-                SizedBox(width: 8),
-                Text('Paciente: ${obtenerNombrePacientePorId(cita.idPaciente)}'),
-              ],
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.person_outline, color: Colors.purple),
-                SizedBox(width: 8),
-                Text('Psicólogo: ${obtenerNombrePsicologoPorId(cita.idPsicologo)}'),
-              ],
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.medical_services, color: Colors.purple),
-                SizedBox(width: 8),
-                Text('Especialidad: ${cita.idEspecialidad ?? 'Desconocido'}'),
-              ],
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.event_note, color: Colors.purple),
-                SizedBox(width: 8),
-                Text('Estado: ${cita.estado}'),
-              ],
+            TextButton(
+              child: Text('Cerrar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
           ],
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: Text('Editar'),
-            onPressed: () {
-              _editarCita(cita);
-              Navigator.of(context).pop(); // Cierra el AlertDialog después de editar.
-            },
-          ),
-          TextButton(
-            child: Text('Cerrar'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
-
-  Widget _buildCitaItem({required String fecha, required String hora, required String descripcion, required bool isPast}) {
+  Widget _buildCitaItem(
+      {required String fecha,
+      required String hora,
+      required String descripcion,
+      required bool isPast}) {
     return Card(
       elevation: 2,
       margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -256,9 +275,68 @@ void _mostrarDetallesCita(Citas cita) {
           .toList(),
     );
   }
-  void _editarCita(Citas cita) {
-  print('Editar cita con ID: ${cita.id}');
-  // Aquí puedes agregar la lógica para editar la cita.
-}
 
+  void _editarCita(Citas cita) {
+    String nuevoEstado = cita.estado ?? 'Pendiente'; // Estado por defecto
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: ((context, setState) =>AlertDialog (
+            title: Text('Editar estado de la cita'),
+            content: DropdownButton<String>(
+              value: nuevoEstado,
+              onChanged: (String? newValue) {
+                setState(() {
+                  nuevoEstado = newValue!;
+                });
+              },
+              items: <String>['Confirmada', 'Pendiente', 'Cancelado']
+                  .map<DropdownMenuItem<String>>(
+                    (String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    ),
+                  )
+                  .toList(),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Guardar'),
+                onPressed: () async {
+                  try {
+                  await CitasService().actualizarEstadoCita(cita.id!, nuevoEstado);
+                  Navigator.of(context).pop(); // Cierra el AlertDialog de edición
+                  Navigator.of(context).pop(); // Cierra el AlertDialog de detalles
+                  _cargarDatos();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Cambio guardado correctamente'),
+                    ),
+                  );// Refresca los datos
+                }
+                catch (e) {
+                  // Mostrar un mensaje de error al usuario
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error al actualizar el estado: $e'),
+                    ),
+                  );
+                }
+                },
+              ),
+              TextButton(
+                child: Text('Cancelar'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          )
+        )
+        );
+      },
+    );
+  }
 }

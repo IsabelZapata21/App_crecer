@@ -70,7 +70,7 @@ Widget build(BuildContext context) {
         _buildOptionItem(
           context,
           'Registrar asistencia',
-          Icons.calendar_today,
+          Icons.assignment,
           () {
              Navigator.push(
             context,
@@ -81,7 +81,7 @@ Widget build(BuildContext context) {
         _buildOptionItem(
           context,
           'Ver cronograma',
-          Icons.update,
+          Icons.calendar_month_outlined,
           () {
             Navigator.push(
             context,
@@ -92,7 +92,7 @@ Widget build(BuildContext context) {
         _buildOptionItem(
           context,
           'Ir a citas',
-          Icons.history,
+          Icons.work_history,
           () {
             Navigator.push(
             context,
@@ -107,7 +107,7 @@ Widget build(BuildContext context) {
           () {
              Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ChatApp()),
+            MaterialPageRoute(builder: (context) => ChatScreen()),
           );
           },
         ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'detalles_sesion.dart';
 
-class Reporte extends StatelessWidget {
+class NotaClinica extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +58,7 @@ class Reporte extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               decoration: InputDecoration(
-                labelText: 'Buscar reporte',
+                labelText: 'Buscar nota clínica',
                 prefixIcon: Icon(Icons.search, color: Colors.purple),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),

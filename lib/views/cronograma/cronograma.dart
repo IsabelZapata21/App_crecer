@@ -19,7 +19,6 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
   DateTime fechaFin = DateTime.now();
   String? estadoActividad;
   List<String> estadosActividad = ['Pendiente', 'Realizada', 'Cancelada'];
-  List<DateTime> fechasGuardadas = [];
 
   void _guardarActividades(Actividades actividad) async {
     print('actData ${actividad.toJson()}');

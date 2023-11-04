@@ -88,27 +88,20 @@ class Citas extends StatelessWidget {
         _buildOptionItem(
           context,
           'Programar cita',
-          Icons.calendar_today,
+          Icons.collections_bookmark_sharp,
           () => viewModel.navigateToRegistro(
               context), // Usa el ViewModel para la navegación
         ),
         _buildOptionItem(
           context,
-          'Actualizar citas',
-          Icons.update,
-          () => viewModel.navigateToActualizar(
-              context), // Usa el ViewModel para la navegación
-        ),
-        _buildOptionItem(
-          context,
           'Historial de citas',
-          Icons.history,
+          Icons.archive,
           () => viewModel.navigateToHistorialCitas(
               context), // Usa el ViewModel para la navegación
         ),
         _buildOptionItem(
           context,
-          'Reportes',
+          'Historial clínico',
           Icons.apps_outlined,
           () => viewModel.navigateToReporte(
               context), // Usa el ViewModel para la navegación
