@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_2/models/asistencias/asistencia.dart';
 import 'package:flutter_application_2/services/asistencia/asistencia_service.dart';
 import 'package:flutter_application_2/views/asistencia/foto.dart';
-
+import 'package:intl/intl.dart';
 
 class AsistenciaPage extends StatefulWidget {
   @override
@@ -27,7 +27,7 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Asistencia'),
+        title: const Text('Asistencia'),
         backgroundColor: Colors.purple,
       ),
       body: Padding(
@@ -35,11 +35,11 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Señor xd',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
+            // Text(
+            //   'Asistencias',
+            //   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            // ),
+            // SizedBox(height: 20),
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -68,21 +68,27 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Asistencias 15'),
-                        Text('Faltas 0'),
-                        Text('Asistencias 15/64'),
+                        const Text('Asistencias'),
+                        Text('${asistencias.length}/64'),
                       ],
                     ),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 12),
             Expanded(
               child: ListView.builder(
-                itemCount: 7, // You can update this based on your data
+                itemCount: asistencias
+                    .length, // You can update this based on your data
                 itemBuilder: (context, index) {
-                  return AttendanceTile();
+                  final fecha = asistencias[index].fecha;
+                  return AttendanceTile(
+                    fecha:
+                        '${DateFormat('yy/MM/dd').format(fecha ?? DateTime.now())}',
+                    hora:
+                        '${DateFormat('HH:mm:ss aa').format(fecha ?? DateTime.now())}',
+                  );
                 },
               ),
             ),
@@ -91,8 +97,11 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
                 icon: Icon(Icons.camera_alt),
                 color: Colors.deepPurple,
                 iconSize: 40.0,
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => TomarFotoPage()));
+                onPressed: () async {
+                  await Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => TomarFotoPage()));
+                  asistencias = await AsistenciaService().obtenerAsistencias();
+                  setState(() {});
                   // ... (sin cambios aquí)
                 },
               ),
@@ -105,6 +114,9 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
 }
 
 class AttendanceTile extends StatelessWidget {
+  const AttendanceTile({super.key, this.fecha = '', this.hora = ''});
+  final String fecha;
+  final String hora;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -112,9 +124,8 @@ class AttendanceTile extends StatelessWidget {
       elevation: 2,
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        leading:
-            Text('08/09/2023', style: TextStyle(fontWeight: FontWeight.bold)),
-        title: Text('06:20 PM'),
+        leading: Text(fecha, style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(hora),
         trailing: Icon(Icons.check, color: Colors.green),
       ),
     );

@@ -1,5 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_2/models/asistencias/asistencia.dart';
+import 'package:flutter_application_2/services/asistencia/asistencia_service.dart';
 
 class TomarFotoPage extends StatefulWidget {
   @override
@@ -39,8 +41,6 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
 
   @override
   Widget build(BuildContext context) {
-    const cameraBoxSize = 400.0;
-    const cameraBoxSize2= 300.0; // Tamaño constante para el cuadro de la cámara
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tomar foto'),
@@ -68,8 +68,8 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
           ),
           ElevatedButton(
             onPressed: _takePicture,
-            child: const Text('Marcar Asistencia'),
             style: ElevatedButton.styleFrom(primary: Colors.purple),
+            child: const Text('Marcar Asistencia'),
           ),
           const SizedBox(height: 20),
         ],
@@ -98,11 +98,13 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
                   await _initializeControllerFuture;
                   final XFile image = await _controller.takePicture();
                   String imagePath = image.path;
-
+                  final asistencia = Asistencia(urlFoto: imagePath);
+                  AsistenciaService().registrarAsistencia(asistencia);
                   // Aquí puedes usar `imagePath` para obtener la ruta de la imagen
                   // y luego marcar la asistencia con esa foto.
 
                   Navigator.of(context).pop();
+                  Navigator.pop(context);
                 } catch (e) {
                   print(e);
                   // Mostrar un mensaje de error al usuario
