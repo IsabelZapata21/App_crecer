@@ -23,7 +23,8 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
   void _guardarActividades(Actividades actividad) async {
     print('actData ${actividad.toJson()}');
     try {
-      String mensaje = await ActividadesService().guardarActividades(actividad.toJson());
+      String mensaje =
+          await ActividadesService().guardarActividades(actividad.toJson());
       // Si se guardó con éxito, muestra un dialog
       print(mensaje);
       showDialog(
@@ -200,11 +201,11 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                       controller: _descripcionController,
                       decoration: InputDecoration(labelText: 'Descripción'),
                     ),
-                    TextField(
-                      controller: _responsableController,
-                      decoration: InputDecoration(labelText: 'Responsable'),
-                      enabled: false,
-                    ),
+                    // TextField(
+                    //   controller: _responsableController,
+                    //   decoration: InputDecoration(labelText: 'Responsable'),
+                    //   enabled: false,
+                    // ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       value: _estado,
@@ -364,8 +365,8 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                       responsable: _responsableController.text,
                       idResponsable: 1,
                       estado: _estado,
-                      horaInicio: _fechaInicio.toString(),
-                      horaFin: _fechaFin.toString(),
+                      horaInicio: _horaInicio.format(context),
+                      horaFin: _horaFin.format(context),
                     );
 
                     _guardarActividades(nuevaActividad);
@@ -391,8 +392,17 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
         TextEditingController(text: actividad.responsable ?? '');
     DateTime _fechaInicio = actividad.fechaInicio ?? DateTime.now();
     DateTime _fechaFin = actividad.fechaFin ?? DateTime.now();
-    TimeOfDay _horaInicio = TimeOfDay.fromDateTime(_fechaInicio);
-    TimeOfDay _horaFin = TimeOfDay.fromDateTime(_fechaFin);
+
+    // Parse the time string
+    TimeOfDay _horaInicio = TimeOfDay(
+      hour: int.tryParse(actividad.horaInicio?.split(":")[0] ?? '0') ?? 0,
+      minute: int.tryParse(actividad.horaInicio?.split(":")[1] ?? '0') ?? 0,
+    );
+    // Parse the time string
+    TimeOfDay _horaFin = TimeOfDay(
+      hour: int.tryParse(actividad.horaFin?.split(":")[0] ?? '0') ?? 0,
+      minute: int.tryParse(actividad.horaFin?.split(":")[1] ?? '0') ?? 0,
+    );
     String _estado = actividad.estado ?? 'P'; // Valor predeterminado
 
     showDialog(
@@ -416,11 +426,11 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                       controller: _descripcionController,
                       decoration: InputDecoration(labelText: 'Descripción'),
                     ),
-                    TextField(
-                      controller: _responsableController,
-                      decoration: InputDecoration(labelText: 'Responsable'),
-                      enabled: false,
-                    ),
+                    // TextField(
+                    //   controller: _responsableController,
+                    //   decoration: InputDecoration(labelText: 'Responsable'),
+                    //   enabled: false,
+                    // ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       value: _estado,
@@ -579,14 +589,15 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                       _horaFin.minute,
                     );
                     final nuevaActividad = actividad.copyWith(
-                        nombre: _tituloController.text,
-                        descripcion: _descripcionController.text,
-                        fechaInicio: _fechaInicio,
-                        fechaFin: _fechaFin,
-                        responsable: _responsableController.text,
-                        estado: _estado,
-                        horaInicio: _fechaInicio.toString(),
-                        horaFin: _fechaFin.toString());
+                      nombre: _tituloController.text,
+                      descripcion: _descripcionController.text,
+                      fechaInicio: _fechaInicio,
+                      fechaFin: _fechaFin,
+                      responsable: _responsableController.text,
+                      estado: _estado,
+                      horaInicio: _horaInicio.format(context),
+                      horaFin: _horaFin.format(context),
+                    );
                     _actualizarActividades(nuevaActividad);
                     setState(() {});
 
@@ -691,7 +702,7 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                         return ListTile(
                           title: Text(actividad?.nombre ?? ''),
                           subtitle: Text(
-                              '${actividad?.descripcion} (${TimeOfDay.fromDateTime(actividad?.fechaInicio ?? DateTime.now()).format(context)} - ${TimeOfDay.fromDateTime(actividad?.fechaFin ?? DateTime.now()).format(context)})'),
+                              '${actividad?.descripcion} (${actividad?.horaInicio} - ${actividad?.horaFin})'),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
