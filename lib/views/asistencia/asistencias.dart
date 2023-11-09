@@ -14,8 +14,8 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
   List<Asistencia> asistencias = [];
   final service = AsistenciaService();
 
-  int get faltas => asistencias.where((element) => element.estado).length;
-  int get asistido => asistencias.length;
+  int get faltas => asistencias.where((element) => !element.estado).length;
+  int get asistido => asistencias.where((element) => element.estado).length;
   // Puedes obtener esta lista desde un ViewModel o Servicio
 
   @override
@@ -78,7 +78,7 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
                       children: [
                         Text('Asistencias $asistido'),
                         Text('Faltas $faltas'),
-                        Text('$asistido/${asistido + faltas}'),
+                        Text('$asistido/${asistencias.length}'),
                       ],
                     ),
                   ],
@@ -93,11 +93,10 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
                 itemBuilder: (context, index) {
                   final fecha = asistencias[index].fecha;
                   final estado = asistencias[index].estado;
+                  if (fecha == null) return const SizedBox();
                   return AttendanceTile(
-                    fecha:
-                        '${DateFormat('yy/MM/dd').format(fecha ?? DateTime.now())}',
-                    hora:
-                        '${DateFormat('HH:mm:ss aa').format(fecha ?? DateTime.now())}',
+                    fecha: DateFormat('yy/MM/dd').format(fecha),
+                    hora: DateFormat('HH:mm aa').format(fecha),
                     estado: estado,
                   );
                 },
@@ -142,10 +141,9 @@ class AttendanceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 5),
       elevation: 2,
       child: ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Text(fecha, style: TextStyle(fontWeight: FontWeight.bold)),
         title: Text(hora),
         trailing: estado
