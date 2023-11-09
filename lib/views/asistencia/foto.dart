@@ -11,6 +11,7 @@ class TomarFotoPage extends StatefulWidget {
 class _TomarFotoPageState extends State<TomarFotoPage> {
   late final CameraController _controller;
   late final Future<void> _initializeControllerFuture;
+  final service = AsistenciaService();
 
   @override
   void initState() {
@@ -98,13 +99,13 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
                   await _initializeControllerFuture;
                   final XFile image = await _controller.takePicture();
                   String imagePath = image.path;
-                  final asistencia = Asistencia(urlFoto: imagePath);
-                  AsistenciaService().registrarAsistencia(asistencia);
                   // Aquí puedes usar `imagePath` para obtener la ruta de la imagen
                   // y luego marcar la asistencia con esa foto.
-
+                  final enOficina = await service.estaEnOficina();
+                  final asistencia = Asistencia(urlFoto: imagePath, estado: enOficina);
+                  service.registrarAsistencia(asistencia);
                   Navigator.of(context).pop();
-                  Navigator.pop(context);
+                  // Navigator.pop(context);
                 } catch (e) {
                   print(e);
                   // Mostrar un mensaje de error al usuario
