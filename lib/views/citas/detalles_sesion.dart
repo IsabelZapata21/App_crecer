@@ -18,6 +18,7 @@ class DetallesSesion extends StatefulWidget {
 
 class _DetallesSesionState extends State<DetallesSesion> {
   //variables
+  Pacientes? paciente;
   String _terminoBusqueda = ''; // Término de búsqueda
   List<Psicologo>? psicologos;
   List<Pacientes>? pacientes;
@@ -39,6 +40,10 @@ class _DetallesSesionState extends State<DetallesSesion> {
 
   @override
   void initState() {
+    PacienteService().obtenerDatos().then((value) {
+      pacientes = value;
+      setState(() {});
+    });
     super.initState();
   }
 
@@ -55,24 +60,36 @@ class _DetallesSesionState extends State<DetallesSesion> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(
+            child: DropdownButtonFormField<Pacientes?>(
+              value: paciente,
+              items: [
+                DropdownMenuItem<Pacientes?>(
+                  value: null,
+                  child: Text('Seleccionar'),
+                ),
+                ...pacientes?.map((p) {
+                      return DropdownMenuItem<Pacientes?>(
+                        value: p,
+                        child: Text('${p.nombre}'),
+                      );
+                    }).toList() ??
+                    [],
+              ],
               onChanged: (value) {
                 setState(() {
-                  _terminoBusqueda = value;
+                  paciente = value;
                 });
               },
               decoration: InputDecoration(
-                labelText: 'Buscar cita',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
+                labelText: 'Paciente',
+                border: OutlineInputBorder(),
               ),
             ),
           ),
           Expanded(
             child: FutureBuilder<List<Citas>>(
-              future: CitasService().obtenerListaCitas(),
+              future: CitasService()
+                  .obtenerListaCitasPorPaciente(paciente?.id ?? ''),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -167,6 +184,30 @@ class _DetallesSesionState extends State<DetallesSesion> {
       super.dispose();
     }
 
+    int calcularDuracion(TimeOfDay inicio, TimeOfDay fin) {
+      final inicioEnMinutos = inicio.hour * 60 + inicio.minute;
+      final finEnMinutos = fin.hour * 60 + fin.minute;
+      return finEnMinutos - inicioEnMinutos;
+    }
+
+    String formatearDuracion(int duracionEnMinutos) {
+      final horas = duracionEnMinutos ~/ 60;
+      final minutos = duracionEnMinutos % 60;
+      String duracionFormateada = '$horas h';
+      if (minutos > 0) {
+        duracionFormateada += ' $minutos min';
+      }
+      return duracionFormateada;
+    }
+
+    void actualizarDuracion() {
+      if (horaInicio != null && horaFin != null) {
+        final duracionEnMinutos = calcularDuracion(horaInicio!, horaFin!);
+        final duracionFormateada = formatearDuracion(duracionEnMinutos);
+        _duracionController.text = duracionFormateada;
+      }
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -181,46 +222,49 @@ class _DetallesSesionState extends State<DetallesSesion> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     ListTile(
-                    title: Text(
-                        'Hora de inicio: ${horaInicio?.format(context) ?? 'No seleccionado'}'),
-                    trailing: Icon(Icons.edit),
-                    onTap: () async {
-                      TimeOfDay? selectedTime = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now(),
-                        initialEntryMode: TimePickerEntryMode
-                            .input, // Añadido para mostrar AM/PM
-                      );
-                      if (selectedTime != null) {
-                        setState(() {
-                          horaInicio = selectedTime;
-                        });
-                      }
-                    },
-                  ),
-                  // Hora de fin
-                  ListTile(
-                    title: Text(
-                        'Hora de fin: ${horaFin?.format(context) ?? 'No seleccionado'}'),
-                    trailing: Icon(Icons.edit),
-                    onTap: () async {
-                      TimeOfDay? selectedTime = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now(),
-                        initialEntryMode: TimePickerEntryMode
-                            .input, // Añadido para mostrar AM/PM
-                      );
-                      if (selectedTime != null) {
-                        setState(() {
-                          horaFin = selectedTime;
-                        });
-                      }
-                    },
-                  ),
+                      title: Text(
+                          'Hora de inicio: ${horaInicio?.format(context) ?? 'No seleccionado'}'),
+                      trailing: Icon(Icons.edit),
+                      onTap: () async {
+                        TimeOfDay? selectedTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                          initialEntryMode: TimePickerEntryMode
+                              .input, // Añadido para mostrar AM/PM
+                        );
+                        if (selectedTime != null) {
+                          setState(() {
+                            horaInicio = selectedTime;
+                            actualizarDuracion();
+                          });
+                        }
+                      },
+                    ),
+                    // Hora de fin
+                    ListTile(
+                      title: Text(
+                          'Hora de fin: ${horaFin?.format(context) ?? 'No seleccionado'}'),
+                      trailing: Icon(Icons.edit),
+                      onTap: () async {
+                        TimeOfDay? selectedTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                          initialEntryMode: TimePickerEntryMode
+                              .input, // Añadido para mostrar AM/PM
+                        );
+                        if (selectedTime != null) {
+                          setState(() {
+                            horaFin = selectedTime;
+                            actualizarDuracion();
+                          });
+                        }
+                      },
+                    ),
                     // Duración
                     TextField(
                       controller: _duracionController,
                       decoration: InputDecoration(labelText: 'Duración'),
+                      enabled: false,
                     ),
                     // Inicio
                     TextField(
