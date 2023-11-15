@@ -31,21 +31,9 @@ class ChatScreenState extends State<ChatScreen> {
               },
             ),
             IconButton(
-              icon: Icon(Icons.videocam),
+              icon: Icon(Icons.file_present),
               onPressed: () {
                 // Funcionalidad para seleccionar y enviar videos.
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.keyboard_voice),
-              onPressed: () {
-                // Funcionalidad para grabar y enviar mensajes de voz.
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.insert_emoticon),
-              onPressed: () {
-                // Biblioteca de stickers y GIFs.
               },
             ),
             Flexible(
@@ -88,7 +76,7 @@ class ChatScreenState extends State<ChatScreen> {
         children: <Widget>[
           Flexible(
             child: ListView.builder(
-              padding: EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8.0),
               reverse: true,
               itemCount: _messages.length,
               itemBuilder: (_, int index) => _messages[index],

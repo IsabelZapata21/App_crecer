@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
           // ... Add other styles as needed
         ),
       ),
-      locale: Locale('es'),
+      locale: const Locale('es'),
       supportedLocales: const <Locale>[
         Locale.fromSubtags(languageCode: 'en'),
         Locale.fromSubtags(languageCode: 'es'),
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: const SplashScreen(),
       routes: {
         '/dashboard': (BuildContext context) => Dashboard(),
         '/cronograma': (BuildContext context) => CronogramaScreen(),
