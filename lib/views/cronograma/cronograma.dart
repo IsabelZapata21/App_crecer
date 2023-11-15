@@ -685,7 +685,7 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              "Actividades para ${DateFormat('dd-MM-yy').format(_selectedDay)}",
+              "Actividades para ${DateFormat('dd-MM-yyyy').format(_selectedDay)}",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),

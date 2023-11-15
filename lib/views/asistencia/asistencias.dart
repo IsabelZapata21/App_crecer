@@ -95,7 +95,7 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
                   final estado = asistencias[index].estado;
                   if (fecha == null) return const SizedBox();
                   return AttendanceTile(
-                    fecha: DateFormat('yy/MM/dd').format(fecha),
+                    fecha: DateFormat('dd/MM/yy').format(fecha),
                     hora: DateFormat('HH:mm aa').format(fecha),
                     estado: estado,
                   );
