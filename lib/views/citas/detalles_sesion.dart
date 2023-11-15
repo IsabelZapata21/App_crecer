@@ -193,9 +193,12 @@ class _DetallesSesionState extends State<DetallesSesion> {
     String formatearDuracion(int duracionEnMinutos) {
       final horas = duracionEnMinutos ~/ 60;
       final minutos = duracionEnMinutos % 60;
-      String duracionFormateada = '$horas h';
+      String duracionFormateada = '';
+      if (horas > 0) {
+        duracionFormateada = '$horas h';
+      }
       if (minutos > 0) {
-        duracionFormateada += ' $minutos min';
+        duracionFormateada += '$minutos min';
       }
       return duracionFormateada;
     }
