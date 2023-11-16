@@ -3,6 +3,7 @@ import 'package:flutter_application_2/models/citas/paciente.dart';
 import 'package:flutter_application_2/models/citas/psicologo.dart';
 import 'package:flutter_application_2/services/citas/pacientes_service.dart';
 import 'package:flutter_application_2/services/citas/sesion_service.dart';
+import 'package:flutter_application_2/views/citas/v_nota_clinica.dart';
 import 'detalles_sesion.dart';
 import 'package:flutter_application_2/models/citas/cita.dart';
 import 'package:flutter_application_2/services/citas/citas_service.dart';
@@ -40,7 +41,6 @@ class _NotaClinicaState extends State<NotaClinica> {
             builder: (context) {
               return AlertDialog(
                 title: Text('No hay sesiones'),
-                
               );
             },
           );
@@ -53,6 +53,15 @@ class _NotaClinicaState extends State<NotaClinica> {
               title: Text('Sesiones'),
               children: value.sesion.map((sesion) {
                 return ListTile(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            NotaClinicaPage(data: sesion.toJson()),
+                      ),
+                    );
+                  },
                   title: Text('Duración: ${sesion.duracion}'),
                   subtitle: Text('Descripción: ${sesion.desarrollo}'),
                 );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_2/services/chat/chat_service.dart';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -6,21 +7,38 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
-  final List<ChatMessage> _messages = [];
+  List<ChatMessage> _messages = [];
   final TextEditingController _textController = TextEditingController();
 
-  void _handleSubmit(String text) {
+  void _handleSubmit(String text) async {
     _textController.clear();
     ChatMessage message = ChatMessage(text: text);
-    setState(() {
-      _messages.insert(0, message);
-    });
+    final sended =
+        await ChatService().enviarMensaje({"emisor": 2, "descripcion": text});
+    if (sended) {
+      setState(() {
+        _messages.insert(0, message);
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Por favor, verifica tu conexión '),
+        ),
+      );
+    }
   }
 
   @override
   void initState() {
-    
-    // TODO: implement initState
+    ChatService().obtenerMensajes().then((value) {
+      print(value);
+      final list = value
+          .map<ChatMessage>((e) => ChatMessage(text: e.descripcion ?? ''))
+          .toList();
+      setState(() {
+        _messages = list;
+      });
+    });
     super.initState();
   }
 
@@ -116,12 +134,6 @@ class ChatScreenState extends State<ChatScreen> {
               ),
               TextField(
                 decoration: InputDecoration(
-                  labelText: 'Fecha',
-                ),
-                // Selector de fecha para buscar por fecha específica.
-              ),
-              TextField(
-                decoration: InputDecoration(
                   labelText: 'Usuario',
                 ),
                 // Funcionalidad de búsqueda por usuario.
@@ -135,7 +147,7 @@ class ChatScreenState extends State<ChatScreen> {
                 // Función de búsqueda con los criterios seleccionados.
               },
             ),
-             FloatingActionButton(
+            FloatingActionButton(
               child: Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop();
