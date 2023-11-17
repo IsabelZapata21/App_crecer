@@ -4,7 +4,6 @@ import 'package:flutter_application_2/models/citas/paciente.dart';
 import 'package:flutter_application_2/models/citas/psicologo.dart';
 import 'package:flutter_application_2/services/citas/citas_service.dart';
 import 'package:flutter_application_2/services/citas/pacientes_service.dart';
-import 'package:flutter_application_2/services/citas/psicologos_service.dart';
 import 'package:flutter_application_2/services/citas/sesion_service.dart';
 
 class DetallesSesion extends StatefulWidget {
@@ -165,7 +164,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
 
   void agregarNotaClinica(Citas cita) {
     // Variables para guardar la información
-    Citas? citas;
+    // Citas? citas;
     final TextEditingController _duracionController = TextEditingController();
     final TextEditingController _inicioController = TextEditingController();
     final TextEditingController _desarrolloController = TextEditingController();

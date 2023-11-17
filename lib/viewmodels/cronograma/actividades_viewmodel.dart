@@ -1,6 +1,3 @@
-import '../../models/cronograma/actividades.dart';
-import '../../models/citas/psicologo.dart';
-
 class RegistroValidate {
 String? validarCampos(String nombre, String descripcion, String? estadoCita) {
     if (descripcion.isEmpty) {

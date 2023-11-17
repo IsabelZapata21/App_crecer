@@ -5,7 +5,6 @@ import 'package:flutter_application_2/models/citas/paciente.dart';
 import 'package:flutter_application_2/models/citas/psicologo.dart';
 import 'package:flutter_application_2/services/citas/pacientes_service.dart';
 import 'package:flutter_application_2/services/citas/psicologos_service.dart';
-import 'package:flutter_application_2/views/citas/actualizacion.dart';
 
 class HistorialCitas extends StatefulWidget {
   @override
