@@ -150,6 +150,7 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
                     SnackBar(content: Text('Error al tomar la foto: $e')),
                   );
                 }
+                Navigator.of(context).pop();
               },
             ),
           ],

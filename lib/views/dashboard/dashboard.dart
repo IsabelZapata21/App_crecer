@@ -3,18 +3,48 @@ import 'package:flutter_application_2/views/citas/citas.dart';
 import 'package:flutter_application_2/views/asistencia/asistencias.dart';
 import 'package:flutter_application_2/views/comuni/comunicacion.dart';
 import 'package:flutter_application_2/views/cronograma/cronograma.dart';
+import 'package:flutter_application_2/services/auth/auth_manager.dart';
+import 'package:flutter_application_2/views/usuarios/splash.dart';
 
 class Dashboard extends StatelessWidget {
   @override
-Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100], // Fondo más suave
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        backgroundColor: Colors.purple, // Un tono más profundo de púrpura
+        backgroundColor: Colors.purple,
         title: Text('Dashboard'),
-        elevation: 0, // Elimina la sombra para un diseño más plano
+        elevation: 0,
         actions: <Widget>[
-          // ... (sin cambios aquí)
+          PopupMenuButton(
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem(
+                    child: ListTile(
+                  leading: Icon(Icons.info, color: Colors.purple),
+                  title: Text('Acerca De'),
+                  onTap: () {
+                    // Agregar lógica para mostrar información sobre la aplicación
+                  },
+                )),
+                PopupMenuItem(
+                  child: ListTile(
+                    leading: Icon(Icons.exit_to_app, color: Colors.purple),
+                    title: Text('Cerrar Sesión'),
+                    onTap: () async {
+                      // Agregar lógica para cerrar sesión
+                      await AuthManager.logOut();
+                      // Navegar a la pantalla de inicio de sesión después de cerrar sesión
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => SplashScreen()),
+                      );
+                    },
+                  ),
+                ),
+              ];
+            },
+          ),
         ],
       ),
       body: Padding(
@@ -36,7 +66,8 @@ Widget build(BuildContext context) {
                 ],
               ),
               padding: const EdgeInsets.all(20.0),
-              child: const Icon(Icons.dashboard, size: 100, color: Colors.purple),
+              child:
+                  const Icon(Icons.dashboard, size: 100, color: Colors.purple),
             ),
             const SizedBox(height: 20),
             Text(
@@ -44,7 +75,7 @@ Widget build(BuildContext context) {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.deepPurple, // Cambiado a púrpura para coherencia
+                color: Colors.deepPurple,
               ),
             ),
             const SizedBox(height: 20),
@@ -72,10 +103,10 @@ Widget build(BuildContext context) {
           'Registrar asistencia',
           Icons.assignment,
           () {
-             Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AsistenciaPage()),
-          );// Agregar aquí la lógica para ir a la pantalla de programar cita
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AsistenciaPage()),
+            );
           },
         ),
         _buildOptionItem(
@@ -84,9 +115,9 @@ Widget build(BuildContext context) {
           Icons.calendar_month_outlined,
           () {
             Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CronogramaScreen()),
-          );// Ag// Agregar aquí la lógica para ir a la pantalla de actualizar citas
+              context,
+              MaterialPageRoute(builder: (context) => CronogramaScreen()),
+            );
           },
         ),
         _buildOptionItem(
@@ -95,9 +126,9 @@ Widget build(BuildContext context) {
           Icons.work_history,
           () {
             Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Citas()),
-          );
+              context,
+              MaterialPageRoute(builder: (context) => Citas()),
+            );
           },
         ),
         _buildOptionItem(
@@ -105,26 +136,27 @@ Widget build(BuildContext context) {
           'Ir a chat',
           Icons.message,
           () {
-             Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ChatScreen()),
-          );
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ChatScreen()),
+            );
           },
         ),
       ],
     );
   }
 
-  Widget _buildOptionItem(BuildContext context, String text, IconData icon, Function onPressed) {
+  Widget _buildOptionItem(
+      BuildContext context, String text, IconData icon, Function onPressed) {
     return Card(
-      elevation: 2, // Elevación del card
-      margin: EdgeInsets.symmetric(vertical: 12, horizontal: 0), // Margen horizontal reducido
+      elevation: 2,
+      margin: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15), // Esquinas redondeadas
+        borderRadius: BorderRadius.circular(15),
       ),
       child: ListTile(
         onTap: () => onPressed(),
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), // Padding ajustado
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         leading: CircleAvatar(
           backgroundColor: Colors.purple,
           child: Icon(icon, color: Colors.white, size: 30),
@@ -138,9 +170,9 @@ Widget build(BuildContext context) {
           ),
         ),
         trailing: Icon(
-          Icons.arrow_forward_ios, // Icono de flecha hacia la derecha
-          size: 20, // Tamaño ajustado
-          color: Colors.grey, // Puedes ajustar el color según tus preferencias
+          Icons.arrow_forward_ios,
+          size: 20,
+          color: Colors.grey,
         ),
       ),
     );

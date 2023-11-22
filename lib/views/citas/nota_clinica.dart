@@ -58,7 +58,7 @@ class _NotaClinicaState extends State<NotaClinica> {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            NotaClinicaPage(data: sesion.toJson()),
+                            NotaClinicaPage(data: sesion.toJson(), psicologo: value.psicologo, paciente:value.paciente),
                       ),
                     );
                   },

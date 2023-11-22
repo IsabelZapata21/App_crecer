@@ -51,6 +51,14 @@ dependencies:
   open_file: ^3.2.1
   firebase_core: ^2.23.0
   firebase_storage: ^11.5.2
+  #image_picker: ^0.8.7+1
+  #file_picker: ^4.0.0
+  shared_preferences: ^2.0.8
+
+
+
+
+
 
 dev_dependencies:
   flutter_test:
@@ -62,7 +70,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
-  
+
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

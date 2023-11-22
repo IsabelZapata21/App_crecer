@@ -3,21 +3,25 @@ class Sesiones {
     required this.citas,
     required this.psicologo,
     required this.sesion,
+    required this.paciente,
   });
 
   final Citas? citas;
   final Psicologo? psicologo;
   final List<Sesion> sesion;
+  final Paciente? paciente;
 
   Sesiones copyWith({
     Citas? citas,
     Psicologo? psicologo,
     List<Sesion>? sesion,
+    Paciente? paciente,
   }) {
     return Sesiones(
       citas: citas ?? this.citas,
       psicologo: psicologo ?? this.psicologo,
       sesion: sesion ?? this.sesion,
+      paciente: paciente ?? this.paciente,
     );
   }
 
@@ -31,6 +35,9 @@ class Sesiones {
           ? []
           : List<Sesion>.from(
               json["listaSesiones"]!.map((x) => Sesion.fromJson(x))),
+      paciente: json["paciente"] == null
+          ? null
+          : Paciente.fromJson(json["paciente"]),
     );
   }
 
@@ -38,11 +45,12 @@ class Sesiones {
         "Citas": citas?.toJson(),
         "Psicologo": psicologo?.toJson(),
         "Sesion": sesion.map((x) => x.toJson()).toList(),
+        "Paciente": paciente?.toJson(),
       };
 
   @override
   String toString() {
-    return "$citas, $psicologo, $sesion, ";
+    return "$citas, $psicologo, $sesion, $paciente";
   }
 }
 
@@ -209,6 +217,55 @@ class Psicologo {
   @override
   String toString() {
     return "$id, $idEspecialidad, $dni, $nombres, $apellidos, $genero, $telefono, $nacimiento, $correo, $nacionalidad, ";
+  }
+}
+
+class Paciente {
+  Paciente({
+    required this.id,
+    required this.nombre,
+    required this.direccion,
+    required this.telfono,
+  });
+
+  final int? id;
+  final String? nombre;
+  final String? direccion;
+  final String? telfono;
+
+  Paciente copyWith({
+    int? id,
+    String? nombre,
+    String? direccion,
+    String? telfono,
+  }) {
+    return Paciente(
+      id: id ?? this.id,
+      nombre: nombre ?? this.nombre,
+      direccion: direccion ?? this.direccion,
+      telfono: telfono ?? this.telfono,
+    );
+  }
+
+  factory Paciente.fromJson(Map<String, dynamic> json) {
+    return Paciente(
+      id: json["ID"],
+      nombre: json["nombre"],
+      direccion: json["direccion"],
+      telfono: json["teléfono"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "ID": id,
+        "nombre": nombre,
+        "direccion": direccion,
+        "teléfono": telfono,
+      };
+
+  @override
+  String toString() {
+    return "$id, $nombre, $direccion, $telfono, ";
   }
 }
 

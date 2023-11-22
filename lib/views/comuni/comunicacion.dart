@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/services/chat/chat_service.dart';
+//import 'package:image_picker/image_picker.dart';
+//import 'package:file_picker/file_picker.dart';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -8,6 +12,10 @@ class ChatScreen extends StatefulWidget {
 
 class ChatScreenState extends State<ChatScreen> {
   List<ChatMessage> _messages = [];
+  //variables
+  //final ImagePicker _image = ImagePicker();
+  File? archivo;
+
   final TextEditingController _textController = TextEditingController();
 
   void _handleSubmit(String text) async {
@@ -27,6 +35,33 @@ class ChatScreenState extends State<ChatScreen> {
       );
     }
   }
+
+ /* Future<void> _pickImage(ImageSource source) async {
+    try {
+      final pickedFile = await _image.pickImage(source: source);
+
+      if (pickedFile != null) {
+        _handleSubmit(pickedFile.path);
+      } else {
+        print('No se seleccionó ninguna imagen.');
+      }
+    } catch (e) {
+      print('Error al seleccionar la imagen: $e');
+    }
+  }
+
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      // Accede a la información del archivo seleccionado
+      PlatformFile file = result.files.first;
+
+      // Puedes realizar acciones con el archivo seleccionado según tus necesidades
+      // Ejemplo: Enviar el archivo como un mensaje
+      _handleSubmit(file.path ?? '');
+    }
+  }*/
 
   @override
   void initState() {
@@ -52,13 +87,16 @@ class ChatScreenState extends State<ChatScreen> {
             IconButton(
               icon: Icon(Icons.photo),
               onPressed: () {
+              //  _pickImage;
                 // Funcionalidad para seleccionar y enviar imágenes.
               },
             ),
             IconButton(
               icon: Icon(Icons.file_present),
               onPressed: () {
-                // Funcionalidad para seleccionar y enviar videos.
+                //_pickFile;
+                // Funcionalidad para
+                //seleccionar y enviar videos.
               },
             ),
             Flexible(

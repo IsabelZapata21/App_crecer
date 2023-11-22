@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/dashboard': (BuildContext context) => Dashboard(),
           '/cronograma': (BuildContext context) => CronogramaScreen(),
-          '/LoginPage': (BuildContext context) => LoginPage(),
+          '/LoginPage': (BuildContext context) => const LoginPage(),
           '/registro': (BuildContext context) => const Registro(),
         },
       ),

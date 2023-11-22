@@ -4,11 +4,14 @@ import 'package:pdf/widgets.dart' as pw;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
+import '../../models/citas/sesiones.dart';
 
 class NotaClinicaPage extends StatelessWidget {
   final Map<String, dynamic> data;
+  final Psicologo? psicologo;
+  final Paciente? paciente;
 
-  NotaClinicaPage({required this.data});
+  NotaClinicaPage({required this.data, required this.psicologo, required this.paciente});
 
   Future<void> _generateAndDownloadPDF(BuildContext context) async {
     final pdf = pw.Document();
@@ -19,8 +22,9 @@ class NotaClinicaPage extends StatelessWidget {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: <pw.Widget>[
-              _buildInfoRow('Psicologo', data['psicologo'] ?? ''),
-              _buildInfoRow('Paciente', data['paciente'] ?? ''),
+              _buildInfoRow(
+                  'Psicologo', '${psicologo?.nombres} ${psicologo?.apellidos}'),
+              _buildInfoRow('Paciente','${paciente?.nombre}'),
               _buildInfoRow('Hora inicio', data['hora_inicio'] ?? ''),
               _buildInfoRow('Hora fin', data['hora_fin'] ?? ''),
               _buildInfoRow('Duración', data['duracion'] ?? ''),
@@ -37,8 +41,10 @@ class NotaClinicaPage extends StatelessWidget {
     final output = await getTemporaryDirectory();
     final file = File("${output.path}/nota_clinica.pdf");
     await file.writeAsBytes(await pdf.save());
-// Abrir el PDF
+
+    // Abrir el PDF
     OpenFile.open(file.path);
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('PDF generado y guardado en ${file.path}'),
@@ -83,8 +89,8 @@ class NotaClinicaPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            _buildInfoTile('Psicologo', data['psicologo'] ?? ''),
-            _buildInfoTile('Paciente', data['paciente'] ?? ''),
+            _buildInfoTile('Psicologo', '${psicologo?.nombres} ${psicologo?.apellidos}'),
+            _buildInfoTile('Paciente','${paciente?.nombre}'),
             _buildInfoTile('Hora inicio', data['hora_inicio'] ?? ''),
             _buildInfoTile('Hora fin', data['hora_fin'] ?? ''),
             _buildInfoTile('Duración', data['duracion'] ?? ''),

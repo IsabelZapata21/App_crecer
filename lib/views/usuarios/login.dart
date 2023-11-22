@@ -6,6 +6,7 @@ import 'package:flutter_application_2/services/auth/auth_service.dart';
 import 'package:flutter_application_2/services/repository.dart';
 import 'package:flutter_application_2/views/dashboard/dashboard.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_application_2/services/auth/auth_manager.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -18,6 +19,7 @@ class LoginPageState extends State<LoginPage> {
   TextEditingController user = TextEditingController();
   TextEditingController pass = TextEditingController();
   String mensaje = '';
+  bool obscurePassword = true; // Variable para controlar la visibilidad de la contraseña
 
   Future<void> login() async {
     try {
@@ -26,6 +28,8 @@ class LoginPageState extends State<LoginPage> {
       final value = await AuthService().iniciarSesion(user.text, pass.text);
       if (!(value['success'] ?? false)) throw ('Clave o contraseña incorrecta');
       wa.usuario = Usuario.fromJson(value['usuario']);
+      //iniciar sesion
+      await AuthManager.logIn(user.text, pass.text);
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => Dashboard()));
     } catch (e) {
@@ -79,12 +83,26 @@ class LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: TextField(
                     controller: pass,
-                    obscureText: true,
+                    obscureText: obscurePassword, // Controla si la contraseña está oculta o no
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Colors.grey[100],
                       labelText: 'Contraseña',
                       prefixIcon: Icon(Icons.lock, color: Colors.purple),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          obscurePassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.purple,
+                        ),
+                        onPressed: () {
+                          // Cambia la visibilidad de la contraseña al presionar el botón del ojo
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
+                      ),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.orange),
                         borderRadius: BorderRadius.circular(10),

@@ -112,26 +112,69 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
                     ),
             ),
             Center(
-              child: IconButton(
-                icon: Icon(Icons.camera_alt),
-                color: Colors.deepPurple,
-                iconSize: 40.0,
+              child: ElevatedButton(
                 onPressed: () async {
                   final permisos = await service.tienePermisos();
                   if (!permisos) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                          content: Text(
-                              'No tienes permisos para ver tu posición, actualiza desde la configuración de la aplicación')),
+                        content: Text(
+                          'No tienes permisos para ver tu posición, actualiza desde la configuración de la aplicación',
+                        ),
+                      ),
                     );
                     return;
                   }
-                  await Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => TomarFotoPage()));
-                  asistencias = await service.obtenerAsistencias(usuario?.id);
-                  setState(() {});
-                  // ... (sin cambios aquí)
+
+                  // Mostrar el diálogo para confirmar la asistencia
+                  bool confirmado = await showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text('Confirmar Asistencia'),
+                      content: Text('¿Quieres marcar tu asistencia?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, false); // No confirmado
+                          },
+                          child: Text('Cancelar'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, true); // Confirmado
+                          },
+                          child: Text('Aceptar'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmado == true) {
+                    // Tomar la foto
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TomarFotoPage(),
+                      ),
+                    );
+
+                    // Actualizar la lista de asistencias después de tomar la foto
+                    asistencias = await service.obtenerAsistencias(usuario?.id);
+                    setState(() {});
+                  }
                 },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.camera_alt),
+                    SizedBox(width: 8),
+                    Text('Marcar asistencia'),
+                  ],
+                ),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.deepPurple,
+                  onPrimary: Colors.white,
+                ),
               ),
             ),
           ],
