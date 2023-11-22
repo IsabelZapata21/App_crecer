@@ -2,6 +2,10 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/models/asistencias/asistencia.dart';
 import 'package:flutter_application_2/services/asistencia/asistencia_service.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_application_2/services/repository.dart';
+import 'package:provider/provider.dart';
 
 class TomarFotoPage extends StatefulWidget {
   @override
@@ -38,6 +42,31 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
           Future.error('Error initializing camera: $e');
     }
     setState(() {});
+  }
+
+  Future<String?> uploadFile(File file, String fileName) async {
+    try {
+      // Referencia al bucket de almacenamiento en Firebase
+      Reference storageReference =
+          FirebaseStorage.instance.ref().child(fileName);
+
+// Define metadatos para el archivo (puedes personalizar según tus necesidades)
+      SettableMetadata metadata = SettableMetadata(
+        contentType:
+            'image/${fileName.split('.').last.toLowerCase()}', // Establece el tipo MIME
+      );
+      // Sube el archivo
+      UploadTask uploadTask = storageReference.putFile(file, metadata);
+      // Espera a que se complete la carga
+      await uploadTask.whenComplete(() => print('Archivo subido con éxito'));
+
+      // Obtiene la URL del archivo cargado
+      String downloadURL = await storageReference.getDownloadURL();
+      return downloadURL;
+    } catch (e) {
+      print('Error al subir el archivo: $e');
+    }
+    return null;
   }
 
   @override
@@ -79,6 +108,7 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
   }
 
   void _takePicture() async {
+    final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -99,13 +129,20 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
                   await _initializeControllerFuture;
                   final XFile image = await _controller.takePicture();
                   String imagePath = image.path;
-                  // Aquí puedes usar `imagePath` para obtener la ruta de la imagen
-                  // y luego marcar la asistencia con esa foto.
+
+                  // Llamada al método para subir la imagen a Firebase Storage
+                  final value = await uploadFile(File(imagePath),
+                      'asistencias/${DateTime.now().millisecondsSinceEpoch}.jpg');
+                  if (value == null) throw ('No se pudo subir al repositorio.');
+                  if (usuario?.id == null) throw ('Sesión perdida.');
+                  // Aquí puedes continuar con el resto del código
                   final enOficina = await service.estaEnOficina();
-                  final asistencia = Asistencia(urlFoto: imagePath, estado: enOficina);
-                  service.registrarAsistencia(asistencia);
+                  final asistencia = Asistencia(
+                      urlFoto: value,
+                      estado: enOficina,
+                      idUsuario: usuario?.id);
+                  await service.registrarAsistencia(asistencia);
                   Navigator.of(context).pop();
-                  // Navigator.pop(context);
                 } catch (e) {
                   print(e);
                   // Mostrar un mensaje de error al usuario

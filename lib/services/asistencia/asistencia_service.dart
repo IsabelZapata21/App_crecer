@@ -65,9 +65,9 @@ class AsistenciaService {
   }
 
   // Obtener todas las asistencias
-  Future<List<Asistencia>> obtenerAsistencias() async {
-    final response = await http.get(
-        Uri.parse("${ApiService.baseUrl}/asistencias/obtener_asistencias.php"));
+  Future<List<Asistencia>> obtenerAsistencias(int? id) async {
+    final response = await http.get(Uri.parse(
+        "${ApiService.baseUrl}/asistencias/obtener_asistencias.php?id_usuario=${id}"));
     if (response.statusCode == 200) {
       final newData = json.decode(response.body) as List<dynamic>;
       return newData.map((e) => Asistencia.fromJson(e)).toList();

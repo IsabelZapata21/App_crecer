@@ -46,8 +46,11 @@ dependencies:
   time_range_picker: ^2.2.0
   pdf: ^3.6.0
   path_provider: ^2.0.14
+  provider: ^6.1.1
   geolocator: ^7.1.0
   open_file: ^3.2.1
+  firebase_core: ^2.23.0
+  firebase_storage: ^11.5.2
 
 dev_dependencies:
   flutter_test:
