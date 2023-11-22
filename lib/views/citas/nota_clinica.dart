@@ -179,8 +179,7 @@ class _NotaClinicaState extends State<NotaClinica> {
                       final cita = citas[index];
                       return _buildCitaItem(
                         idCita: cita.id ?? '',
-                        fecha:
-                            'Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}',
+                        fecha: 'Fecha: ${formatoFecha(cita.fechaCita)}',
                         hora: 'Hora: ${cita.horaCita}',
                         descripcion: cita.descripcion ?? '',
                       );
@@ -204,4 +203,19 @@ class _NotaClinicaState extends State<NotaClinica> {
       ),
     );
   }
+      String formatoFecha(DateTime? fecha) {
+      if (fecha == null) {
+        return 'Fecha no disponible'; // o cualquier valor predeterminado que desees
+      }
+
+      int dia = fecha.day;
+      int mes = fecha.month;
+      int anio = fecha.year;
+
+      // Formatea la fecha como "dd-mm-yy"
+      String formato =
+          '${dia.toString().padLeft(2, '0')}-${mes.toString().padLeft(2, '0')}-${anio.toString().substring(2)}';
+
+      return formato;
+    }
 }

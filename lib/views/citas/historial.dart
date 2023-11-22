@@ -5,6 +5,7 @@ import 'package:flutter_application_2/models/citas/paciente.dart';
 import 'package:flutter_application_2/models/citas/psicologo.dart';
 import 'package:flutter_application_2/services/citas/pacientes_service.dart';
 import 'package:flutter_application_2/services/citas/psicologos_service.dart';
+import 'package:intl/intl.dart';
 
 class HistorialCitas extends StatefulWidget {
   @override
@@ -118,7 +119,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
                   onTap: () => _mostrarDetallesCita(cita),
                   child: _buildCitaItem(
                     fecha:
-                        'Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}',
+                        'Fecha: ${cita.fechaCita != null ? DateFormat('EEEE, d MMMM y', 'es').format(cita.fechaCita!.toLocal()) : 'Fecha no disponible'}',
                     hora: 'Hora: ${cita.horaCita}',
                     descripcion: cita.descripcion ?? '',
                     isPast: false,
@@ -148,7 +149,8 @@ class _HistorialCitasState extends State<HistorialCitas> {
                   Icon(Icons.calendar_today, color: Colors.purple),
                   SizedBox(width: 8),
                   Text(
-                      'Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}'),
+                    'Fecha: ${cita.fechaCita != null ? DateFormat('EEEE, d MMMM y', 'es').format(cita.fechaCita!.toLocal()) : 'Fecha no disponible'}',
+                  ),
                 ],
               ),
               SizedBox(height: 8),
@@ -282,59 +284,60 @@ class _HistorialCitasState extends State<HistorialCitas> {
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder: ((context, setState) =>AlertDialog (
-            title: Text('Editar estado de la cita'),
-            content: DropdownButton<String>(
-              value: nuevoEstado,
-              onChanged: (String? newValue) {
-                setState(() {
-                  nuevoEstado = newValue!;
-                });
-              },
-              items: <String>['Confirmada', 'Pendiente', 'Cancelado']
-                  .map<DropdownMenuItem<String>>(
-                    (String value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
+            builder: ((context, setState) => AlertDialog(
+                  title: Text('Editar estado de la cita'),
+                  content: DropdownButton<String>(
+                    value: nuevoEstado,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        nuevoEstado = newValue!;
+                      });
+                    },
+                    items: <String>['Confirmada', 'Pendiente', 'Cancelado']
+                        .map<DropdownMenuItem<String>>(
+                          (String value) => DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      child: Text('Guardar'),
+                      onPressed: () async {
+                        try {
+                          await CitasService()
+                              .actualizarEstadoCita(cita.id!, nuevoEstado);
+                          Navigator.of(context)
+                              .pop(); // Cierra el AlertDialog de edición
+                          Navigator.of(context)
+                              .pop(); // Cierra el AlertDialog de detalles
+                          _cargarDatos();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Cambio guardado correctamente'),
+                            ),
+                          ); // Refresca los datos
+                        } catch (e) {
+                          // Mostrar un mensaje de error al usuario
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content:
+                                  Text('Error al actualizar el estado: $e'),
+                            ),
+                          );
+                        }
+                      },
                     ),
-                  )
-                  .toList(),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: Text('Guardar'),
-                onPressed: () async {
-                  try {
-                  await CitasService().actualizarEstadoCita(cita.id!, nuevoEstado);
-                  Navigator.of(context).pop(); // Cierra el AlertDialog de edición
-                  Navigator.of(context).pop(); // Cierra el AlertDialog de detalles
-                  _cargarDatos();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Cambio guardado correctamente'),
+                    TextButton(
+                      child: Text('Cancelar'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                     ),
-                  );// Refresca los datos
-                }
-                catch (e) {
-                  // Mostrar un mensaje de error al usuario
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Error al actualizar el estado: $e'),
-                    ),
-                  );
-                }
-                },
-              ),
-              TextButton(
-                child: Text('Cancelar'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          )
-        )
-        );
+                  ],
+                )));
       },
     );
   }

@@ -114,8 +114,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
                       return GestureDetector(
                         onTap: () => agregarNotaClinica(cita),
                         child: _buildCitaItem(
-                          fecha:
-                              'Fecha: ${cita.fechaCita?.toLocal().toString().split(' ')[0]}',
+                          fecha: 'Fecha: ${formatoFecha(cita.fechaCita)}',
                           hora: 'Hora: ${cita.horaCita}',
                           descripcion: cita.descripcion ?? '',
                           isPast: false,
@@ -338,5 +337,21 @@ class _DetallesSesionState extends State<DetallesSesion> {
         );
       },
     );
+  }
+
+  String formatoFecha(DateTime? fecha) {
+    if (fecha == null) {
+      return 'Fecha no disponible'; // o cualquier valor predeterminado que desees
+    }
+
+    int dia = fecha.day;
+    int mes = fecha.month;
+    int anio = fecha.year;
+
+    // Formatea la fecha como "dd-mm-yy"
+    String formato =
+        '${dia.toString().padLeft(2, '0')}-${mes.toString().padLeft(2, '0')}-${anio.toString().substring(2)}';
+
+    return formato;
   }
 }
