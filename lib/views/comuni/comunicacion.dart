@@ -77,7 +77,7 @@ class ChatScreenState extends State<ChatScreen> {
             'chat/${DateTime.now().millisecondsSinceEpoch}-${usuario?.id}.jpg');
         if (value == null) throw ('No se pudo subir al repositorio.');
         // Ejemplo: Enviar el archivo como un mensaje
-        _handleSubmit(value, 'I');
+        _handleSubmit(value, 'F');
       }
     } catch (e) {
       print('Error al seleccionar la imagen: $e');
@@ -245,13 +245,29 @@ class ChatMessage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text('Usuario', style: Theme.of(context).textTheme.subtitle1),
+                const SizedBox(height: 2),
                 tipo == 'M'
-                    ? Text(text,overflow: TextOverflow.clip,)
-                    : Image.network(
+                    ? Text(
                         text,
-                        fit: BoxFit.contain,
-                        height: 200,
-                      ),
+                        overflow: TextOverflow.clip,
+                      )
+                    : tipo == 'I'
+                        ? Image.network(
+                            text,
+                            fit: BoxFit.contain,
+                            height: 200,
+                          )
+                        : Row(
+                            children: [
+                              Icon(Icons.file_download),
+                              Expanded(
+                                child: Text(
+                                  'Archivo enviado',
+                                  overflow: TextOverflow.clip,
+                                ),
+                              ),
+                            ],
+                          ),
               ],
             ),
           ),
