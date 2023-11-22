@@ -22,10 +22,16 @@ class ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
 
   void _handleSubmit(String text, String type) async {
+    final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
+
     _textController.clear();
-    ChatMessage message = ChatMessage(text: text, tipo: type);
+    ChatMessage message = ChatMessage(
+      text: text,
+      tipo: type,
+      user: usuario?.fullName ?? 'Usuario',
+    );
     final sended = await ChatService()
-        .enviarMensaje({"emisor": 2, "descripcion": text, "tipo": type});
+        .enviarMensaje({"emisor": usuario?.id, "descripcion": text, "tipo": type});
     if (sended) {
       setState(() {
         _messages.insert(0, message);
@@ -89,8 +95,11 @@ class ChatScreenState extends State<ChatScreen> {
     ChatService().obtenerMensajes().then((value) {
       print(value);
       final list = value
-          .map<ChatMessage>((e) =>
-              ChatMessage(text: e.descripcion ?? '', tipo: e.tipo ?? 'M'))
+          .map<ChatMessage>((e) => ChatMessage(
+                text: e.descripcion ?? '',
+                tipo: e.tipo ?? 'M',
+                user: e.autor ?? 'Usuario',
+              ))
           .toList();
       setState(() {
         _messages = list;
@@ -227,7 +236,9 @@ class ChatScreenState extends State<ChatScreen> {
 class ChatMessage extends StatelessWidget {
   final String text;
   final String tipo;
-  const ChatMessage({super.key, required this.text, required this.tipo});
+  final String user;
+  const ChatMessage(
+      {super.key, required this.text, required this.tipo, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -244,7 +255,7 @@ class ChatMessage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('Usuario', style: Theme.of(context).textTheme.subtitle1),
+                Text(user, style: Theme.of(context).textTheme.subtitle1),
                 const SizedBox(height: 2),
                 tipo == 'M'
                     ? Text(

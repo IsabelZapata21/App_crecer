@@ -23,6 +23,8 @@ class Usuario {
   final String? usuario;
   final int? createdAt;
 
+  String? get fullName => nombres == null || apellidos == null ? null : '$nombres $apellidos';
+
   Usuario copyWith({
     int? id,
     String? rol,
