@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/services/chat/chat_service.dart';
-//import 'package:image_picker/image_picker.dart';
-//import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -12,8 +12,8 @@ class ChatScreen extends StatefulWidget {
 
 class ChatScreenState extends State<ChatScreen> {
   List<ChatMessage> _messages = [];
-  //variables
-  //final ImagePicker _image = ImagePicker();
+  // variables
+  final ImagePicker _image = ImagePicker();
   File? archivo;
 
   final TextEditingController _textController = TextEditingController();
@@ -36,7 +36,7 @@ class ChatScreenState extends State<ChatScreen> {
     }
   }
 
- /* Future<void> _pickImage(ImageSource source) async {
+  Future<void> _pickImage(ImageSource source) async {
     try {
       final pickedFile = await _image.pickImage(source: source);
 
@@ -61,7 +61,7 @@ class ChatScreenState extends State<ChatScreen> {
       // Ejemplo: Enviar el archivo como un mensaje
       _handleSubmit(file.path ?? '');
     }
-  }*/
+  }
 
   @override
   void initState() {
@@ -87,14 +87,14 @@ class ChatScreenState extends State<ChatScreen> {
             IconButton(
               icon: Icon(Icons.photo),
               onPressed: () {
-              //  _pickImage;
+                _pickImage(ImageSource.gallery);
                 // Funcionalidad para seleccionar y enviar imágenes.
               },
             ),
             IconButton(
               icon: Icon(Icons.file_present),
               onPressed: () {
-                //_pickFile;
+                _pickFile();
                 // Funcionalidad para
                 //seleccionar y enviar videos.
               },
