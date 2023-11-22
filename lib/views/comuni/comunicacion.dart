@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/services/chat/chat_service.dart';
+import 'package:flutter_application_2/services/repository.dart';
+import 'package:flutter_application_2/views/asistencia/foto.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -18,11 +21,11 @@ class ChatScreenState extends State<ChatScreen> {
 
   final TextEditingController _textController = TextEditingController();
 
-  void _handleSubmit(String text) async {
+  void _handleSubmit(String text, String type) async {
     _textController.clear();
-    ChatMessage message = ChatMessage(text: text);
-    final sended =
-        await ChatService().enviarMensaje({"emisor": 2, "descripcion": text});
+    ChatMessage message = ChatMessage(text: text, tipo: type);
+    final sended = await ChatService()
+        .enviarMensaje({"emisor": 2, "descripcion": text, "tipo": type});
     if (sended) {
       setState(() {
         _messages.insert(0, message);
@@ -38,10 +41,17 @@ class ChatScreenState extends State<ChatScreen> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
+      final usuario =
+          Provider.of<UserRepository>(context, listen: false).usuario;
       final pickedFile = await _image.pickImage(source: source);
-
       if (pickedFile != null) {
-        _handleSubmit(pickedFile.path);
+        String imagePath = pickedFile.path;
+
+        // Llamada al método para subir la imagen a Firebase Storage
+        final value = await uploadImage(File(imagePath),
+            'chat/${DateTime.now().millisecondsSinceEpoch}-${usuario?.id}.jpg');
+        if (value == null) throw ('No se pudo subir al repositorio.');
+        _handleSubmit(value, 'I');
       } else {
         print('No se seleccionó ninguna imagen.');
       }
@@ -51,15 +61,26 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    try {
+      final usuario =
+          Provider.of<UserRepository>(context, listen: false).usuario;
+      FilePickerResult? result = await FilePicker.platform.pickFiles();
 
-    if (result != null) {
-      // Accede a la información del archivo seleccionado
-      PlatformFile file = result.files.first;
+      if (result != null) {
+        // Accede a la información del archivo seleccionado
+        PlatformFile file = result.files.first;
+        String? imagePath = file.path;
+        if (imagePath == null) throw ('Sin asignar');
 
-      // Puedes realizar acciones con el archivo seleccionado según tus necesidades
-      // Ejemplo: Enviar el archivo como un mensaje
-      _handleSubmit(file.path ?? '');
+        // Llamada al método para subir la imagen a Firebase Storage
+        final value = await uploadFile(File(imagePath),
+            'chat/${DateTime.now().millisecondsSinceEpoch}-${usuario?.id}.jpg');
+        if (value == null) throw ('No se pudo subir al repositorio.');
+        // Ejemplo: Enviar el archivo como un mensaje
+        _handleSubmit(value, 'I');
+      }
+    } catch (e) {
+      print('Error al seleccionar la imagen: $e');
     }
   }
 
@@ -68,7 +89,8 @@ class ChatScreenState extends State<ChatScreen> {
     ChatService().obtenerMensajes().then((value) {
       print(value);
       final list = value
-          .map<ChatMessage>((e) => ChatMessage(text: e.descripcion ?? ''))
+          .map<ChatMessage>((e) =>
+              ChatMessage(text: e.descripcion ?? '', tipo: e.tipo ?? 'M'))
           .toList();
       setState(() {
         _messages = list;
@@ -102,7 +124,7 @@ class ChatScreenState extends State<ChatScreen> {
             Flexible(
               child: TextField(
                 controller: _textController,
-                onSubmitted: _handleSubmit,
+                onSubmitted: (str) => _handleSubmit(str, 'M'),
                 decoration:
                     InputDecoration.collapsed(hintText: "Enviar un mensaje"),
               ),
@@ -111,7 +133,7 @@ class ChatScreenState extends State<ChatScreen> {
               margin: EdgeInsets.symmetric(horizontal: 4.0),
               child: IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: () => _handleSubmit(_textController.text)),
+                  onPressed: () => _handleSubmit(_textController.text, 'M')),
             ),
           ],
         ),
@@ -204,7 +226,8 @@ class ChatScreenState extends State<ChatScreen> {
 
 class ChatMessage extends StatelessWidget {
   final String text;
-  ChatMessage({required this.text});
+  final String tipo;
+  const ChatMessage({super.key, required this.text, required this.tipo});
 
   @override
   Widget build(BuildContext context) {
@@ -217,15 +240,20 @@ class ChatMessage extends StatelessWidget {
             margin: EdgeInsets.only(right: 16.0),
             child: CircleAvatar(child: Text('U')),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text('Usuario', style: Theme.of(context).textTheme.subtitle1),
-              Container(
-                margin: EdgeInsets.only(top: 5.0),
-                child: Text(text),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text('Usuario', style: Theme.of(context).textTheme.subtitle1),
+                tipo == 'M'
+                    ? Text(text,overflow: TextOverflow.clip,)
+                    : Image.network(
+                        text,
+                        fit: BoxFit.contain,
+                        height: 200,
+                      ),
+              ],
+            ),
           ),
         ],
       ),

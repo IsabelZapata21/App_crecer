@@ -7,6 +7,48 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_application_2/services/repository.dart';
 import 'package:provider/provider.dart';
 
+Future<String?> uploadImage(File file, String fileName) async {
+  try {
+    // Referencia al bucket de almacenamiento en Firebase
+    Reference storageReference = FirebaseStorage.instance.ref().child(fileName);
+
+// Define metadatos para el archivo (puedes personalizar según tus necesidades)
+    SettableMetadata metadata = SettableMetadata(
+      contentType:
+          'image/${fileName.split('.').last.toLowerCase()}', // Establece el tipo MIME
+    );
+    // Sube el archivo
+    UploadTask uploadTask = storageReference.putFile(file, metadata);
+    // Espera a que se complete la carga
+    await uploadTask.whenComplete(() => print('Archivo subido con éxito'));
+
+    // Obtiene la URL del archivo cargado
+    String downloadURL = await storageReference.getDownloadURL();
+    return downloadURL;
+  } catch (e) {
+    print('Error al subir el archivo: $e');
+  }
+  return null;
+}
+
+Future<String?> uploadFile(File file, String fileName) async {
+  try {
+    // Referencia al bucket de almacenamiento en Firebase
+    Reference storageReference = FirebaseStorage.instance.ref().child(fileName);
+    // Sube el archivo
+    UploadTask uploadTask = storageReference.putFile(file);
+    // Espera a que se complete la carga
+    await uploadTask.whenComplete(() => print('Archivo subido con éxito'));
+
+    // Obtiene la URL del archivo cargado
+    String downloadURL = await storageReference.getDownloadURL();
+    return downloadURL;
+  } catch (e) {
+    print('Error al subir el archivo: $e');
+  }
+  return null;
+}
+
 class TomarFotoPage extends StatefulWidget {
   @override
   _TomarFotoPageState createState() => _TomarFotoPageState();
@@ -42,31 +84,6 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
           Future.error('Error initializing camera: $e');
     }
     setState(() {});
-  }
-
-  Future<String?> uploadFile(File file, String fileName) async {
-    try {
-      // Referencia al bucket de almacenamiento en Firebase
-      Reference storageReference =
-          FirebaseStorage.instance.ref().child(fileName);
-
-// Define metadatos para el archivo (puedes personalizar según tus necesidades)
-      SettableMetadata metadata = SettableMetadata(
-        contentType:
-            'image/${fileName.split('.').last.toLowerCase()}', // Establece el tipo MIME
-      );
-      // Sube el archivo
-      UploadTask uploadTask = storageReference.putFile(file, metadata);
-      // Espera a que se complete la carga
-      await uploadTask.whenComplete(() => print('Archivo subido con éxito'));
-
-      // Obtiene la URL del archivo cargado
-      String downloadURL = await storageReference.getDownloadURL();
-      return downloadURL;
-    } catch (e) {
-      print('Error al subir el archivo: $e');
-    }
-    return null;
   }
 
   @override
@@ -131,7 +148,7 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
                   String imagePath = image.path;
 
                   // Llamada al método para subir la imagen a Firebase Storage
-                  final value = await uploadFile(File(imagePath),
+                  final value = await uploadImage(File(imagePath),
                       'asistencias/${DateTime.now().millisecondsSinceEpoch}.jpg');
                   if (value == null) throw ('No se pudo subir al repositorio.');
                   if (usuario?.id == null) throw ('Sesión perdida.');
