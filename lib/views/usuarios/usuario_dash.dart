@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/services/repository.dart';
-import 'package:flutter_application_2/views/citas/citas.dart';
-import 'package:flutter_application_2/views/asistencia/asistencias.dart';
-import 'package:flutter_application_2/views/comuni/comunicacion.dart';
-import 'package:flutter_application_2/views/cronograma/cronograma.dart';
 import 'package:flutter_application_2/services/auth/auth_manager.dart';
 import 'package:flutter_application_2/views/usuarios/splash.dart';
-import 'package:flutter_application_2/views/usuarios/registrar.dart';
-import 'package:flutter_application_2/views/usuarios/usuario_dash.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_application_2/views/usuarios/listar_usuario.dart';
+import 'package:flutter_application_2/views/usuarios/registrar.dart';
 
-class Dashboard extends StatelessWidget {
+class UsuarioDashboard extends StatefulWidget {
+  const UsuarioDashboard({super.key});
+
+  @override
+  State<UsuarioDashboard> createState() => _UsuarioDashboardState();
+}
+
+class _UsuarioDashboardState extends State<UsuarioDashboard> {
   @override
   Widget build(BuildContext context) {
     final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
@@ -25,13 +28,14 @@ class Dashboard extends StatelessWidget {
             itemBuilder: (BuildContext context) {
               return [
                 PopupMenuItem(
-                    child: ListTile(
-                  leading: Icon(Icons.info, color: Colors.purple),
-                  title: Text('Acerca De'),
-                  onTap: () {
-                    // Agregar lógica para mostrar información sobre la aplicación
-                  },
-                )),
+                  child: ListTile(
+                    leading: Icon(Icons.info, color: Colors.purple),
+                    title: Text('Acerca De'),
+                    onTap: () {
+                      // Agregar lógica para mostrar información sobre la aplicación
+                    },
+                  ),
+                ),
                 PopupMenuItem(
                   child: ListTile(
                     leading: Icon(Icons.exit_to_app, color: Colors.purple),
@@ -106,56 +110,23 @@ class Dashboard extends StatelessWidget {
       children: <Widget>[
         _buildOptionItem(
           context,
-          'Registrar asistencia',
+          'Registrar usuarios',
           Icons.assignment,
           () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AsistenciaPage()),
+              MaterialPageRoute(builder: (context) => RegistroUsuarioScreen()),
             );
           },
         ),
         _buildOptionItem(
           context,
-          'Ver cronograma',
-          Icons.calendar_month_outlined,
+          'Listar usuarios',
+          Icons.list,
           () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CronogramaScreen()),
-            );
-          },
-        ),
-        _buildOptionItem(
-          context,
-          'Ir a citas',
-          Icons.work_history,
-          () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Citas()),
-            );
-          },
-        ),
-        _buildOptionItem(
-          context,
-          'Ir a chat',
-          Icons.message,
-          () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ChatScreen()),
-            );
-          },
-        ),
-        _buildOptionItem(
-          context,
-          'Usuarios',
-          Icons.assignment,
-          () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UsuarioDashboard()),
+              MaterialPageRoute(builder: (context) => HistorialUsuarios()),
             );
           },
         ),
