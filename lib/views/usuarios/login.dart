@@ -8,6 +8,7 @@ import 'package:flutter_application_2/views/dashboard/dashboard.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/services/auth/auth_manager.dart';
 
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 

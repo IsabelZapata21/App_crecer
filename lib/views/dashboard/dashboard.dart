@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_2/services/repository.dart';
 import 'package:flutter_application_2/views/citas/citas.dart';
 import 'package:flutter_application_2/views/asistencia/asistencias.dart';
 import 'package:flutter_application_2/views/comuni/comunicacion.dart';
 import 'package:flutter_application_2/views/cronograma/cronograma.dart';
 import 'package:flutter_application_2/services/auth/auth_manager.dart';
 import 'package:flutter_application_2/views/usuarios/splash.dart';
+import 'package:flutter_application_2/views/usuarios/registrar.dart';
+import 'package:provider/provider.dart';
 
 class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -47,10 +51,12 @@ class Dashboard extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
+        physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Container(
               decoration: BoxDecoration(
@@ -71,8 +77,8 @@ class Dashboard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Bienvenida',
-              style: TextStyle(
+              '${usuario?.genero == 'Femenino' ? 'Bienvenida' : 'Bienvenido'}, ${usuario?.fullName}',
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.deepPurple,
@@ -80,10 +86,9 @@ class Dashboard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             _buildOptionsWidget(context),
-            const Spacer(),
-            const Text(
-              'Modo usuario',
-              style: TextStyle(
+            Text(
+              'Modo ${usuario?.rol}',
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.deepPurple,
@@ -139,6 +144,17 @@ class Dashboard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ChatScreen()),
+            );
+          },
+        ),
+        _buildOptionItem(
+          context,
+          'Registrar usuarios',
+          Icons.assignment,
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RegistroUsuarioScreen()),
             );
           },
         ),

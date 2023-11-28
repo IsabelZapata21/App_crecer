@@ -52,7 +52,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.purple,
-        title: Text('Historial de citas'),
+        title: const Text('Historial de citas'),
         actions: <Widget>[
           _buildFiltroDropdown(),
           PopupMenuButton<String>(
@@ -65,7 +65,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
             },
             itemBuilder: (BuildContext context) {
               return [
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'cerrar_sesion',
                   child: Row(
                     children: [
@@ -75,7 +75,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
                     ],
                   ),
                 ),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'acerca_de',
                   child: Row(
                     children: [
@@ -94,7 +94,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
         future: CitasService().obtenerListaCitas(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
@@ -102,7 +102,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
               child: Text('Error: ${snapshot.error}'),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
+            return const Center(
               child: Text('No hay citas disponibles.'),
             );
           } else {
@@ -138,7 +138,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Detalles de la cita',
+          title: const Text('Detalles de la cita',
               style: TextStyle(fontWeight: FontWeight.bold)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -146,64 +146,64 @@ class _HistorialCitasState extends State<HistorialCitas> {
             children: <Widget>[
               Row(
                 children: [
-                  Icon(Icons.calendar_today, color: Colors.purple),
-                  SizedBox(width: 8),
+                  const Icon(Icons.calendar_today, color: Colors.purple),
+                  const SizedBox(width: 8),
                   Text(
                     'Fecha: ${cita.fechaCita != null ? DateFormat('EEEE, d MMMM y', 'es').format(cita.fechaCita!.toLocal()) : 'Fecha no disponible'}',
                   ),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.access_time, color: Colors.purple),
-                  SizedBox(width: 8),
+                  const Icon(Icons.access_time, color: Colors.purple),
+                  const SizedBox(width: 8),
                   Text('Hora: ${cita.horaCita}'),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.note, color: Colors.purple),
-                  SizedBox(width: 8),
+                  const Icon(Icons.note, color: Colors.purple),
+                  const SizedBox(width: 8),
                   Expanded(
                       child: Text('Descripción: ${cita.descripcion ?? ''}')),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.person, color: Colors.purple),
-                  SizedBox(width: 8),
+                  const Icon(Icons.person, color: Colors.purple),
+                  const SizedBox(width: 8),
                   Text(
                       'Paciente: ${obtenerNombrePacientePorId(cita.idPaciente)}'),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.person_outline, color: Colors.purple),
-                  SizedBox(width: 8),
+                  const Icon(Icons.person_outline, color: Colors.purple),
+                  const SizedBox(width: 8),
                   Text(
                       'Psicólogo: ${obtenerNombrePsicologoPorId(cita.idPsicologo)}'),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.medical_services, color: Colors.purple),
-                  SizedBox(width: 8),
+                  const Icon(Icons.medical_services, color: Colors.purple),
+                  const SizedBox(width: 8),
                   Flexible(
                     child: Text(
                         'Especialidad: ${obtenerNombreEspecialidadPorId(cita.idPsicologo)}'),
                   ),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.event_note, color: Colors.purple),
-                  SizedBox(width: 8),
+                  const Icon(Icons.event_note, color: Colors.purple),
+                  const SizedBox(width: 8),
                   Text('Estado: ${cita.estado}'),
                 ],
               ),
@@ -211,13 +211,13 @@ class _HistorialCitasState extends State<HistorialCitas> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Editar'),
+              child: const Text('Editar'),
               onPressed: () {
                 _editarCita(cita); // Cierra el AlertDialog después de editar.
               },
             ),
             TextButton(
-              child: Text('Cerrar'),
+              child: const Text('Cerrar'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -235,15 +235,15 @@ class _HistorialCitasState extends State<HistorialCitas> {
       required bool isPast}) {
     return Card(
       elevation: 2,
-      margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
       child: ListTile(
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         leading: CircleAvatar(
           backgroundColor: isPast ? Colors.grey : Colors.purple,
-          child: Icon(Icons.calendar_today, color: Colors.white, size: 30),
+          child: const Icon(Icons.calendar_today, color: Colors.white, size: 30),
           radius: 30,
         ),
         title: Text(
@@ -285,7 +285,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
       builder: (BuildContext context) {
         return StatefulBuilder(
             builder: ((context, setState) => AlertDialog(
-                  title: Text('Editar estado de la cita'),
+                  title: const Text('Editar estado de la cita'),
                   content: DropdownButton<String>(
                     value: nuevoEstado,
                     onChanged: (String? newValue) {
@@ -304,7 +304,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
                   ),
                   actions: <Widget>[
                     TextButton(
-                      child: Text('Guardar'),
+                      child: const Text('Guardar'),
                       onPressed: () async {
                         try {
                           await CitasService()
@@ -315,7 +315,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
                               .pop(); // Cierra el AlertDialog de detalles
                           _cargarDatos();
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
+                            const SnackBar(
                               content: Text('Cambio guardado correctamente'),
                             ),
                           ); // Refresca los datos
@@ -331,7 +331,7 @@ class _HistorialCitasState extends State<HistorialCitas> {
                       },
                     ),
                     TextButton(
-                      child: Text('Cancelar'),
+                      child: const Text('Cancelar'),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
