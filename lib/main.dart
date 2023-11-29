@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
         title: 'AppCrecer',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          useMaterial3: true,
           primaryColor: Colors.purple,
           colorScheme: ColorScheme.light(primary: Colors.purple),
           textTheme: TextTheme(

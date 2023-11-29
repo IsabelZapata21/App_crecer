@@ -274,6 +274,7 @@ class ChatMessage extends StatelessWidget {
     final mensaje = tipo == 'M'
         ? Text(
             text,
+            textAlign: TextAlign.justify,
             overflow: TextOverflow.clip,
           )
         : tipo == 'I'
@@ -300,12 +301,13 @@ class ChatMessage extends StatelessWidget {
                   ),
                 ],
               );
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10.0),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0, left: 8, right: 8),
       child: sended
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                const SizedBox(width: 48),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -317,21 +319,15 @@ class ChatMessage extends StatelessWidget {
                     ],
                   ),
                 ),
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: CircleAvatar(
-                      child: Text(user.characters.first.toUpperCase())),
-                ),
+                const SizedBox(width: 8),
+                CircleAvatar(child: Text(user.characters.first.toUpperCase())),
               ],
             )
           : Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Container(
-                  margin: const EdgeInsets.only(right: 16.0),
-                  child: CircleAvatar(
-                      child: Text(user.characters.first.toUpperCase())),
-                ),
+                CircleAvatar(child: Text(user.characters.first.toUpperCase())),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,6 +338,7 @@ class ChatMessage extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(width: 48),
               ],
             ),
     );
