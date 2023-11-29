@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -15,7 +16,9 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
-  List<ChatMessage> _messages = [];
+  late StreamController<List<ChatMessage>> _messagesStreamController;
+  late Stream<List<ChatMessage>> _messagesStream;
+  late Timer _timer;
   // variables
   final ImagePicker _image = ImagePicker();
   File? archivo;
@@ -24,28 +27,13 @@ class ChatScreenState extends State<ChatScreen> {
 
   void _handleSubmit(String text, String type) async {
     final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
-
     _textController.clear();
-    final mensaje = Mensaje.fromJson({
+    final sended = await ChatService().enviarMensaje({
       "emisor": usuario?.id,
-      "autor": usuario?.fullName,
       "descripcion": text,
       "tipo": type,
     });
-    ChatMessage message = ChatMessage(
-      model: mensaje,
-      sended: true,
-    );
-    final sended = await ChatService().enviarMensaje({
-      "emisor": mensaje.emisor,
-      "descripcion": mensaje.descripcion,
-      "tipo": mensaje.tipo
-    });
-    if (sended) {
-      setState(() {
-        _messages.insert(0, message);
-      });
-    } else {
+    if (!sended) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Por favor, verifica tu conexión '),
@@ -101,21 +89,40 @@ class ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
+    // Crear el StreamController y el Stream
+    _messagesStreamController = StreamController<List<ChatMessage>>();
+    _messagesStream = _messagesStreamController.stream;
+
+    // Iniciar el temporizador para emitir eventos cada segundo
+    _timer = Timer.periodic(const Duration(seconds: 2), (_) {
+      // Actualizar la lista de mensajes (puedes cargar los mensajes de tu servicio aquí)
+      actualizarListaMensajes();
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // Detener el temporizador y cerrar el StreamController cuando el widget se elimina
+    _timer.cancel();
+    _messagesStreamController.close();
+    super.dispose();
+  }
+
+  void actualizarListaMensajes() {
     final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
 
     ChatService().obtenerMensajes().then((value) {
-      print(value);
       final list = value
           .map<ChatMessage>((e) => ChatMessage(
                 model: e,
                 sended: usuario?.id == e.emisor,
               ))
           .toList();
-      setState(() {
-        _messages = list;
-      });
+
+      // Agregar la lista de mensajes al StreamController
+      _messagesStreamController.add(list);
     });
-    super.initState();
   }
 
   Widget _buildTextComposer() {
@@ -179,11 +186,22 @@ class ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: <Widget>[
           Flexible(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(8.0),
-              reverse: true,
-              itemCount: _messages.length,
-              itemBuilder: (_, int index) => _messages[index],
+            child: StreamBuilder<List<ChatMessage>>(
+              stream: _messagesStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  // Usar la lista de mensajes del snapshot para construir la interfaz
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(8.0),
+                    reverse: true,
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (_, int index) => snapshot.data![index],
+                  );
+                } else {
+                  // Mientras no haya datos, puedes mostrar un indicador de carga
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
             ),
           ),
           const Divider(height: 1.0),
