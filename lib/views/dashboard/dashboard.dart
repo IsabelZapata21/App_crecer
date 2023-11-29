@@ -86,7 +86,6 @@ class Dashboard extends StatelessWidget {
               '${usuario?.genero == 'Femenino' ? 'Bienvenida' : 'Bienvenido'}, ${usuario?.fullName}',
               textAlign: TextAlign.center,
               style: const TextStyle(
-                
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.deepPurple,
@@ -109,19 +108,21 @@ class Dashboard extends StatelessWidget {
   }
 
   Widget _buildOptionsWidget(BuildContext context) {
+    final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
     return Column(
       children: <Widget>[
-        _buildOptionItem(
-          context,
-          'Usuarios',
-          Icons.person,
-          () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UsuarioDashboard()),
-            );
-          },
-        ),
+        if (usuario?.isAdministrator == true)
+          _buildOptionItem(
+            context,
+            'Usuarios',
+            Icons.person,
+            () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UsuarioDashboard()),
+              );
+            },
+          ),
         _buildOptionItem(
           context,
           'Citas',

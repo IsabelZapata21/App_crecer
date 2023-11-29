@@ -1,3 +1,5 @@
+enum RolType { admin, collaborator, intern }
+
 class Usuario {
   Usuario({
     required this.id,
@@ -23,7 +25,14 @@ class Usuario {
   final String? usuario;
   final int? createdAt;
 
-  String? get fullName => nombres == null || apellidos == null ? null : '$nombres $apellidos';
+  String? get fullName =>
+      nombres == null || apellidos == null ? null : '$nombres $apellidos';
+  bool get isAdministrator => _currentRol == RolType.admin;
+  RolType get _currentRol => rol == 'Administrador'
+      ? RolType.admin
+      : rol == 'Interno'
+          ? RolType.intern
+          : RolType.collaborator;
 
   Usuario copyWith({
     int? id,

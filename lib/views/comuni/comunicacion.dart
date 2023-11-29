@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_2/models/chat/mensaje.dart';
 import 'package:flutter_application_2/services/chat/chat_service.dart';
 import 'package:flutter_application_2/services/repository.dart';
 import 'package:flutter_application_2/views/asistencia/foto.dart';
@@ -25,13 +26,21 @@ class ChatScreenState extends State<ChatScreen> {
     final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
 
     _textController.clear();
+    final mensaje = Mensaje.fromJson({
+      "emisor": usuario?.id,
+      "autor": usuario?.fullName,
+      "descripcion": text,
+      "tipo": type,
+    });
     ChatMessage message = ChatMessage(
-      text: text,
-      tipo: type,
-      user: usuario?.fullName ?? 'Usuario',
+      model: mensaje,
+      sended: true,
     );
-    final sended = await ChatService()
-        .enviarMensaje({"emisor": usuario?.id, "descripcion": text, "tipo": type});
+    final sended = await ChatService().enviarMensaje({
+      "emisor": mensaje.emisor,
+      "descripcion": mensaje.descripcion,
+      "tipo": mensaje.tipo
+    });
     if (sended) {
       setState(() {
         _messages.insert(0, message);
@@ -92,13 +101,14 @@ class ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
+    final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
+
     ChatService().obtenerMensajes().then((value) {
       print(value);
       final list = value
           .map<ChatMessage>((e) => ChatMessage(
-                text: e.descripcion ?? '',
-                tipo: e.tipo ?? 'M',
-                user: e.autor ?? 'Usuario',
+                model: e,
+                sended: usuario?.id == e.emisor,
               ))
           .toList();
       setState(() {
@@ -134,8 +144,8 @@ class ChatScreenState extends State<ChatScreen> {
               child: TextField(
                 controller: _textController,
                 onSubmitted: (str) => _handleSubmit(str, 'M'),
-                decoration:
-                    const InputDecoration.collapsed(hintText: "Enviar un mensaje"),
+                decoration: const InputDecoration.collapsed(
+                    hintText: "Enviar un mensaje"),
               ),
             ),
             Container(
@@ -234,56 +244,88 @@ class ChatScreenState extends State<ChatScreen> {
 }
 
 class ChatMessage extends StatelessWidget {
-  final String text;
-  final String tipo;
-  final String user;
-  const ChatMessage(
-      {super.key, required this.text, required this.tipo, required this.user});
+  final Mensaje model;
+  final bool sended;
+  const ChatMessage({super.key, required this.model, this.sended = false});
 
   @override
   Widget build(BuildContext context) {
+    final user = model.autor ?? 'Usuario';
+    final text = model.descripcion ?? '';
+    final tipo = model.tipo ?? 'M';
+    final mensaje = tipo == 'M'
+        ? Text(
+            text,
+            overflow: TextOverflow.clip,
+          )
+        : tipo == 'I'
+            ? Image.network(
+                text,
+                fit: BoxFit.contain,
+                height: 200,
+                errorBuilder: (context, error, stackTrace) => Text(
+                  'No se puede visualizar ${text}',
+                  overflow: TextOverflow.clip,
+                  style: const TextStyle(
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              )
+            : const Row(
+                children: [
+                  Icon(Icons.file_download),
+                  Expanded(
+                    child: Text(
+                      'Archivo enviado',
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
+                ],
+              );
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            margin: const EdgeInsets.only(right: 16.0),
-            child: const CircleAvatar(child: Text('U')),
-          ),
-          Expanded(
-            child: Column(
+      child: sended
+          ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(user, style: Theme.of(context).textTheme.subtitle1),
-                const SizedBox(height: 2),
-                tipo == 'M'
-                    ? Text(
-                        text,
-                        overflow: TextOverflow.clip,
-                      )
-                    : tipo == 'I'
-                        ? Image.network(
-                            text,
-                            fit: BoxFit.contain,
-                            height: 200,
-                          )
-                        : const Row(
-                            children: [
-                              Icon(Icons.file_download),
-                              Expanded(
-                                child: Text(
-                                  'Archivo enviado',
-                                  overflow: TextOverflow.clip,
-                                ),
-                              ),
-                            ],
-                          ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Text(user,
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 2),
+                      mensaje,
+                    ],
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: CircleAvatar(
+                      child: Text(user.characters.first.toUpperCase())),
+                ),
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsets.only(right: 16.0),
+                  child: CircleAvatar(
+                      child: Text(user.characters.first.toUpperCase())),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(user, style: Theme.of(context).textTheme.subtitle1),
+                      const SizedBox(height: 2),
+                      mensaje,
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
