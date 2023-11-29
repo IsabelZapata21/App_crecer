@@ -137,54 +137,58 @@ class _HistorialUsuariosState extends State<HistorialUsuarios> {
     );
   }
 
-  void _editarUsuario(Usuario usuario) {
-    String nuevaContrasena = ""; // Estado por defecto
+void _editarUsuario(Usuario usuario) {
+  String nuevaContrasena = "";
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: ((context, setState) => AlertDialog(
-                title: const Text('Editar usuario'),
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Nombre: ${usuario.nombres} ${usuario.apellidos}'),
-                    SizedBox(height: 16),
-                    Text('Teléfono: ${usuario.telefono}'),
-                    SizedBox(height: 16),
-                    Text('Género: ${usuario.genero}'),
-                    SizedBox(height: 16),
-                    TextField(
-                      onChanged: (value) {
-                        nuevaContrasena = value;
-                      },
-                      decoration:
-                          InputDecoration(labelText: 'Nueva Contraseña'),
-                    ),
-                  ],
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Editar usuario'),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Nombre: ${usuario.nombres} ${usuario.apellidos}'),
+                SizedBox(height: 16),
+                Text('Teléfono: ${usuario.telefono}'),
+                SizedBox(height: 16),
+                Text('Género: ${usuario.genero}'),
+                SizedBox(height: 16),
+                TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      nuevaContrasena = value;
+                    });
+                  },
+                  decoration: InputDecoration(labelText: 'Nueva Contraseña'),
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Cerrar el diálogo
-                    },
-                    child: Text('Cancelar'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      // Lógica para cambiar la contraseña aquí
-                      await _cambiarContrasena(usuario.id, nuevaContrasena);
-                      Navigator.of(context).pop(); // Cerrar el diálogo
-                    },
-                    child: Text('Guardar Cambios'),
-                  ),
-                ],
-              )),
-        );
-      },
-    );
-  }
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Cerrar el diálogo
+                },
+                child: Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  // Lógica para cambiar la contraseña aquí
+                  await _cambiarContrasena(usuario.id, nuevaContrasena);
+                  Navigator.of(context).pop(); // Cerrar el diálogo
+                },
+                child: Text('Guardar Cambios'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
 
   Future<void> _cambiarContrasena(int? userId, String nuevaContrasena) async {
     if (userId != null) {

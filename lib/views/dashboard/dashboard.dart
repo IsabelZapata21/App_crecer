@@ -6,8 +6,9 @@ import 'package:flutter_application_2/views/comuni/comunicacion.dart';
 import 'package:flutter_application_2/views/cronograma/cronograma.dart';
 import 'package:flutter_application_2/services/auth/auth_manager.dart';
 import 'package:flutter_application_2/views/usuarios/splash.dart';
-import 'package:flutter_application_2/views/usuarios/registrar.dart';
+//import 'package:flutter_application_2/views/usuarios/registrar.dart';
 import 'package:flutter_application_2/views/usuarios/usuario_dash.dart';
+import 'package:flutter_application_2/views/dashboard/acerca.dart';
 import 'package:provider/provider.dart';
 
 class Dashboard extends StatelessWidget {
@@ -30,6 +31,10 @@ class Dashboard extends StatelessWidget {
                   title: Text('Acerca De'),
                   onTap: () {
                     // Agregar lógica para mostrar información sobre la aplicación
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => AcercaDe()),
+                    );
                   },
                 )),
                 PopupMenuItem(
@@ -74,18 +79,20 @@ class Dashboard extends StatelessWidget {
               ),
               padding: const EdgeInsets.all(20.0),
               child:
-                  const Icon(Icons.dashboard, size: 100, color: Colors.purple),
+                  const Icon(Icons.person_pin, size: 50, color: Colors.purple),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             Text(
               '${usuario?.genero == 'Femenino' ? 'Bienvenida' : 'Bienvenido'}, ${usuario?.fullName}',
+              textAlign: TextAlign.center,
               style: const TextStyle(
+                
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.deepPurple,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             _buildOptionsWidget(context),
             Text(
               'Modo ${usuario?.rol}',
@@ -106,29 +113,18 @@ class Dashboard extends StatelessWidget {
       children: <Widget>[
         _buildOptionItem(
           context,
-          'Registrar asistencia',
-          Icons.assignment,
+          'Usuarios',
+          Icons.person,
           () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AsistenciaPage()),
+              MaterialPageRoute(builder: (context) => UsuarioDashboard()),
             );
           },
         ),
         _buildOptionItem(
           context,
-          'Ver cronograma',
-          Icons.calendar_month_outlined,
-          () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CronogramaScreen()),
-            );
-          },
-        ),
-        _buildOptionItem(
-          context,
-          'Ir a citas',
+          'Citas',
           Icons.work_history,
           () {
             Navigator.push(
@@ -139,23 +135,34 @@ class Dashboard extends StatelessWidget {
         ),
         _buildOptionItem(
           context,
-          'Ir a chat',
-          Icons.message,
+          'Asistencia',
+          Icons.assignment,
           () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ChatScreen()),
+              MaterialPageRoute(builder: (context) => AsistenciaPage()),
             );
           },
         ),
         _buildOptionItem(
           context,
-          'Usuarios',
-          Icons.assignment,
+          'Cronograma',
+          Icons.calendar_month_outlined,
           () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => UsuarioDashboard()),
+              MaterialPageRoute(builder: (context) => CronogramaScreen()),
+            );
+          },
+        ),
+        _buildOptionItem(
+          context,
+          'Comunicación',
+          Icons.message,
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ChatScreen()),
             );
           },
         ),

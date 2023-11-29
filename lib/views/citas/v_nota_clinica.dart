@@ -24,7 +24,7 @@ class NotaClinicaPage extends StatelessWidget {
             children: <pw.Widget>[
               _buildInfoRow(
                   'Psicologo', '${psicologo?.nombres} ${psicologo?.apellidos}'),
-              _buildInfoRow('Paciente','${paciente?.nombre}'),
+              //_buildInfoRow('Paciente','${paciente?.nombre}'),
               _buildInfoRow('Hora inicio', data['hora_inicio'] ?? ''),
               _buildInfoRow('Hora fin', data['hora_fin'] ?? ''),
               _buildInfoRow('Duración', data['duracion'] ?? ''),
@@ -90,7 +90,7 @@ class NotaClinicaPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _buildInfoTile('Psicologo', '${psicologo?.nombres} ${psicologo?.apellidos}'),
-            _buildInfoTile('Paciente','${paciente?.nombre}'),
+           // _buildInfoTile('Paciente','${paciente?.nombre}'),
             _buildInfoTile('Hora inicio', data['hora_inicio'] ?? ''),
             _buildInfoTile('Hora fin', data['hora_fin'] ?? ''),
             _buildInfoTile('Duración', data['duracion'] ?? ''),

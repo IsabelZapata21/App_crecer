@@ -38,7 +38,7 @@ class ChatScreenState extends State<ChatScreen> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Por favor, verifica tu conexión '),
         ),
       );
@@ -110,20 +110,20 @@ class ChatScreenState extends State<ChatScreen> {
 
   Widget _buildTextComposer() {
     return IconTheme(
-      data: IconThemeData(color: Colors.purple),
+      data: const IconThemeData(color: Colors.purple),
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 8.0),
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Row(
           children: <Widget>[
             IconButton(
-              icon: Icon(Icons.photo),
+              icon: const Icon(Icons.photo),
               onPressed: () {
                 _pickImage(ImageSource.gallery);
                 // Funcionalidad para seleccionar y enviar imágenes.
               },
             ),
             IconButton(
-              icon: Icon(Icons.file_present),
+              icon: const Icon(Icons.file_present),
               onPressed: () {
                 _pickFile();
                 // Funcionalidad para
@@ -135,13 +135,13 @@ class ChatScreenState extends State<ChatScreen> {
                 controller: _textController,
                 onSubmitted: (str) => _handleSubmit(str, 'M'),
                 decoration:
-                    InputDecoration.collapsed(hintText: "Enviar un mensaje"),
+                    const InputDecoration.collapsed(hintText: "Enviar un mensaje"),
               ),
             ),
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 4.0),
+              margin: const EdgeInsets.symmetric(horizontal: 4.0),
               child: IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                   onPressed: () => _handleSubmit(_textController.text, 'M')),
             ),
           ],
@@ -154,14 +154,14 @@ class ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat Grupal'),
+        title: const Text('Chat Grupal'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.search),
+            icon: const Icon(Icons.search),
             onPressed: _showSearchDialog,
           ),
           IconButton(
-            icon: Icon(Icons.archive),
+            icon: const Icon(Icons.archive),
             onPressed: _archiveChat,
           ),
         ],
@@ -176,7 +176,7 @@ class ChatScreenState extends State<ChatScreen> {
               itemBuilder: (_, int index) => _messages[index],
             ),
           ),
-          Divider(height: 1.0),
+          const Divider(height: 1.0),
           Container(
             decoration: BoxDecoration(color: Theme.of(context).cardColor),
             child: _buildTextComposer(),
@@ -191,8 +191,8 @@ class ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Búsqueda avanzada'),
-          content: Column(
+          title: const Text('Búsqueda avanzada'),
+          content: const Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               TextField(
@@ -211,13 +211,13 @@ class ChatScreenState extends State<ChatScreen> {
           ),
           actions: <Widget>[
             FloatingActionButton(
-              child: Text('Buscar'),
+              child: const Text('Buscar'),
               onPressed: () {
                 // Función de búsqueda con los criterios seleccionados.
               },
             ),
             FloatingActionButton(
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -243,13 +243,13 @@ class ChatMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10.0),
+      margin: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            margin: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(child: Text('U')),
+            margin: const EdgeInsets.only(right: 16.0),
+            child: const CircleAvatar(child: Text('U')),
           ),
           Expanded(
             child: Column(
@@ -268,7 +268,7 @@ class ChatMessage extends StatelessWidget {
                             fit: BoxFit.contain,
                             height: 200,
                           )
-                        : Row(
+                        : const Row(
                             children: [
                               Icon(Icons.file_download),
                               Expanded(

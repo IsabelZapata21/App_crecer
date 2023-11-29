@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/services/repository.dart';
-import 'package:flutter_application_2/services/auth/auth_manager.dart';
-import 'package:flutter_application_2/views/usuarios/splash.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/views/usuarios/listar_usuario.dart';
 import 'package:flutter_application_2/views/usuarios/registrar.dart';
@@ -21,40 +19,7 @@ class _UsuarioDashboardState extends State<UsuarioDashboard> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Colors.purple,
-        title: Text('Dashboard'),
-        elevation: 0,
-        actions: <Widget>[
-          PopupMenuButton(
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem(
-                  child: ListTile(
-                    leading: Icon(Icons.info, color: Colors.purple),
-                    title: Text('Acerca De'),
-                    onTap: () {
-                      // Agregar lógica para mostrar información sobre la aplicación
-                    },
-                  ),
-                ),
-                PopupMenuItem(
-                  child: ListTile(
-                    leading: Icon(Icons.exit_to_app, color: Colors.purple),
-                    title: Text('Cerrar Sesión'),
-                    onTap: () async {
-                      // Agregar lógica para cerrar sesión
-                      await AuthManager.logOut();
-                      // Navegar a la pantalla de inicio de sesión después de cerrar sesión
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => SplashScreen()),
-                      );
-                    },
-                  ),
-                ),
-              ];
-            },
-          ),
-        ],
+        title: Text('Usuarios'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -64,21 +29,9 @@ class _UsuarioDashboardState extends State<UsuarioDashboard> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
               padding: const EdgeInsets.all(20.0),
               child:
-                  const Icon(Icons.dashboard, size: 100, color: Colors.purple),
+                  const Icon(Icons.person_2_outlined, size: 100, color: Colors.purple),
             ),
             const SizedBox(height: 20),
             Text(
