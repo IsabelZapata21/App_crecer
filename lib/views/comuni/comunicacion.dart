@@ -94,7 +94,7 @@ class ChatScreenState extends State<ChatScreen> {
     _messagesStream = _messagesStreamController.stream;
 
     // Iniciar el temporizador para emitir eventos cada segundo
-    _timer = Timer.periodic(const Duration(seconds: 2), (_) {
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) {
       // Actualizar la lista de mensajes (puedes cargar los mensajes de tu servicio aquí)
       actualizarListaMensajes();
     });

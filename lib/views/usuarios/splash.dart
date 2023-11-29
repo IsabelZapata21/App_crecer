@@ -18,21 +18,23 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Icon(Icons.ac_unit,
-                size: 100,
-                color:
-                    Colors.orange), // Placeholder icon, replace with your logo
-            SizedBox(height: 40.0),
-            FadeAnimatedTextKit(
-              text: const ['CRECER'],
-              textStyle: const TextStyle(
-                fontSize: 40.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.orange,
+            Image.asset(
+              'assets/image/logo_crecer.png',
+              height: 100,
+              width: 100,
+            ), // Placeholder icon, replace with your logo
+            SizedBox(
+              height: 80,
+              child: FadeAnimatedTextKit(
+                text: const ['CRECER'],
+                textStyle: const TextStyle(
+                  fontSize: 40.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                ),
+                duration: Duration(milliseconds: 2000),
               ),
-              duration: Duration(milliseconds: 2000),
             ),
-            SizedBox(height: 60.0),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 primary: Colors.orange,
@@ -45,21 +47,20 @@ class SplashScreen extends StatelessWidget {
                   if (user == null || pass == null) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text('Valores no identificados uwu')));
-                        return;
+                    return;
                   }
                   try {
                     if (user.isEmpty || pass.isEmpty) throw ('Campos vacíos');
                     final wa =
                         Provider.of<UserRepository>(context, listen: false);
-                    final value =
-                        await AuthService().iniciarSesion(user, pass);
+                    final value = await AuthService().iniciarSesion(user, pass);
                     if (!(value['success'] ?? false))
                       throw ('Clave o contraseña incorrecta');
                     wa.usuario = Usuario.fromJson(value['usuario']);
                     //iniciar sesion
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (context) => Dashboard()));
-                        return;
+                    return;
                   } catch (e) {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text(e.toString())));
