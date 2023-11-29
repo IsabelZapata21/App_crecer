@@ -272,11 +272,11 @@ print(citaData);
               ElevatedButton(
                 onPressed: () async {
                   TimeOfDay newTimeOfDay =
-                      horaCita.replacing(hour: (horaCita.hour + 1) % 24);
+                      horaCita.replacing(hour: (horaCita.hour + 3) % 24);
                   final horaSeleccionada = await showTimeRangePicker(
                     disabledTime:
                         TimeRange(startTime: horaCita, endTime: newTimeOfDay),
-                    start: horaCita,
+                    start: newTimeOfDay,
                     context: context,
                   );
                   if (horaSeleccionada != null &&

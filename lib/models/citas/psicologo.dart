@@ -83,3 +83,26 @@ class Psicologo {
     return "$id, $especialidad, $dni, $nombres, $apellidos, $genero, $telefono, $nacimiento, $correo, $nacionalidad, ";
   }
 }
+
+class PsicologoHorario extends Psicologo {
+  final String? horaInicioM;
+  final String? horaFinM;
+  final String? horaInicioT;
+  final String? horaFinT;
+
+  PsicologoHorario(
+      {required super.id,
+      required this.horaInicioM,
+      required this.horaInicioT,
+      required this.horaFinM,
+      required this.horaFinT,
+      required super.especialidad,
+      required super.dni,
+      required super.nombres,
+      required super.apellidos,
+      required super.genero,
+      required super.telefono,
+      required super.nacimiento,
+      required super.correo,
+      required super.nacionalidad});
+}
