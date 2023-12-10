@@ -5,7 +5,10 @@ import 'package:flutter_application_2/models/citas/paciente.dart';
 import 'package:flutter_application_2/models/citas/psicologo.dart';
 import 'package:flutter_application_2/services/citas/pacientes_service.dart';
 import 'package:flutter_application_2/services/citas/psicologos_service.dart';
+import 'package:flutter_application_2/views/dashboard/acerca.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_application_2/services/auth/auth_manager.dart';
+import 'package:flutter_application_2/views/usuarios/splash.dart';
 
 class HistorialCitas extends StatefulWidget {
   @override
@@ -64,25 +67,32 @@ class _HistorialCitasState extends State<HistorialCitas> {
               }
             },
             itemBuilder: (BuildContext context) {
-              return [
-                const PopupMenuItem<String>(
-                  value: 'cerrar_sesion',
-                  child: Row(
-                    children: [
-                      Icon(Icons.exit_to_app, color: Colors.purple),
-                      SizedBox(width: 8),
-                      Text('Cerrar Sesión'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'acerca_de',
-                  child: Row(
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.purple),
-                      SizedBox(width: 8),
-                      Text('Acerca de'),
-                    ],
+             return [
+                PopupMenuItem(
+                    child: ListTile(
+                  leading: Icon(Icons.info, color: Colors.purple),
+                  title: Text('Acerca De'),
+                  onTap: () {
+                    // Agregar lógica para mostrar información sobre la aplicación
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => AcercaDe()),
+                    );
+                  },
+                )),
+                PopupMenuItem(
+                  child: ListTile(
+                    leading: Icon(Icons.exit_to_app, color: Colors.purple),
+                    title: Text('Cerrar Sesión'),
+                    onTap: () async {
+                      // Agregar lógica para cerrar sesión
+                      await AuthManager.logOut();
+                      // Navegar a la pantalla de inicio de sesión después de cerrar sesión
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => SplashScreen()),
+                      );
+                    },
                   ),
                 ),
               ];

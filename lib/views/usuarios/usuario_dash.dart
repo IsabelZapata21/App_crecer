@@ -3,7 +3,7 @@ import 'package:flutter_application_2/services/repository.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/views/usuarios/listar_usuario.dart';
 import 'package:flutter_application_2/views/usuarios/registrar.dart';
-
+import 'package:flutter_application_2/views/usuarios/asistencias_usuario.dart';
 class UsuarioDashboard extends StatefulWidget {
   const UsuarioDashboard({super.key});
 
@@ -36,6 +36,7 @@ class _UsuarioDashboardState extends State<UsuarioDashboard> {
             const SizedBox(height: 20),
             Text(
               '${usuario?.genero == 'Femenino' ? 'Bienvenida' : 'Bienvenido'}, ${usuario?.fullName}',
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -46,6 +47,7 @@ class _UsuarioDashboardState extends State<UsuarioDashboard> {
             _buildOptionsWidget(context),
             Text(
               'Modo ${usuario?.rol}',
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -80,6 +82,17 @@ class _UsuarioDashboardState extends State<UsuarioDashboard> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => HistorialUsuarios()),
+            );
+          },
+        ),
+        _buildOptionItem(
+          context,
+          'Asistencia usuarios',
+          Icons.assignment,
+          () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AsistenciasUsuarios()),
             );
           },
         ),

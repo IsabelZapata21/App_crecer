@@ -52,7 +52,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.purple,
-        title: Text('Historial de citas'),
+        title: const Text('Historial de citas'),
         actions: <Widget>[],
       ),
       body: Column(
@@ -62,9 +62,9 @@ class _DetallesSesionState extends State<DetallesSesion> {
             child: DropdownButtonFormField<Pacientes?>(
               value: paciente,
               items: [
-                DropdownMenuItem<Pacientes?>(
+                const DropdownMenuItem<Pacientes?>(
                   value: null,
-                  child: Text('Seleccionar'),
+                  child: const Text('Seleccionar'),
                 ),
                 ...pacientes?.map((p) {
                       return DropdownMenuItem<Pacientes?>(
@@ -79,7 +79,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
                   paciente = value;
                 });
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Paciente',
                 border: OutlineInputBorder(),
               ),
@@ -91,7 +91,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
                   .obtenerListaCitasPorPaciente(paciente?.id ?? ''),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(),
                   );
                 } else if (snapshot.hasError) {
@@ -99,7 +99,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
                     child: Text('Error: ${snapshot.error}'),
                   );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(
+                  return const Center(
                     child: Text('No hay citas disponibles.'),
                   );
                 } else {
@@ -138,15 +138,15 @@ class _DetallesSesionState extends State<DetallesSesion> {
       required bool isPast}) {
     return Card(
       elevation: 2,
-      margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
       child: ListTile(
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         leading: CircleAvatar(
           backgroundColor: isPast ? Colors.grey : Colors.purple,
-          child: Icon(Icons.calendar_today, color: Colors.white, size: 30),
+          child: const Icon(Icons.calendar_today, color: Colors.white, size: 30),
           radius: 30,
         ),
         title: Text(
@@ -215,7 +215,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Nota Clínica',
+              title: const Text('Nota Clínica',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               content: SingleChildScrollView(
                 child: Column(
@@ -225,7 +225,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
                     ListTile(
                       title: Text(
                           'Hora de inicio: ${horaInicio?.format(context) ?? 'No seleccionado'}'),
-                      trailing: Icon(Icons.edit),
+                      trailing: const Icon(Icons.edit),
                       onTap: () async {
                         TimeOfDay? selectedTime = await showTimePicker(
                           context: context,
@@ -245,7 +245,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
                     ListTile(
                       title: Text(
                           'Hora de fin: ${horaFin?.format(context) ?? 'No seleccionado'}'),
-                      trailing: Icon(Icons.edit),
+                      trailing: const Icon(Icons.edit),
                       onTap: () async {
                         TimeOfDay? selectedTime = await showTimePicker(
                           context: context,
@@ -264,35 +264,35 @@ class _DetallesSesionState extends State<DetallesSesion> {
                     // Duración
                     TextField(
                       controller: _duracionController,
-                      decoration: InputDecoration(labelText: 'Duración'),
+                      decoration: const InputDecoration(labelText: 'Duración'),
                       enabled: false,
                     ),
                     // Inicio
                     TextField(
                       controller: _inicioController,
-                      decoration: InputDecoration(labelText: 'Inicio'),
+                      decoration: const InputDecoration(labelText: 'Inicio'),
                     ),
                     // Desarrollo
                     TextField(
                       controller: _desarrolloController,
-                      decoration: InputDecoration(labelText: 'Desarrollo'),
+                      decoration: const InputDecoration(labelText: 'Desarrollo'),
                     ),
                     // Análisis
                     TextField(
                       controller: _analisisController,
-                      decoration: InputDecoration(labelText: 'Análisis'),
+                      decoration: const InputDecoration(labelText: 'Análisis'),
                     ),
                     // Observaciones
                     TextField(
                       controller: _observacionesController,
-                      decoration: InputDecoration(labelText: 'Observaciones'),
+                      decoration: const InputDecoration(labelText: 'Observaciones'),
                     ),
                   ],
                 ),
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text('Generar nota clínica'),
+                  child: const Text('Generar nota clínica'),
                   onPressed: () {
                     if (_duracionController.text.isNotEmpty &&
                         _inicioController.text.isNotEmpty &&
@@ -318,7 +318,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
                     } else {
                       // Muestra un mensaje de error si los campos no están llenos
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                             content:
                                 Text('Por favor, complete todos los campos')),
                       );
@@ -326,7 +326,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
                   },
                 ),
                 TextButton(
-                  child: Text('Cerrar'),
+                  child: const Text('Cerrar'),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },

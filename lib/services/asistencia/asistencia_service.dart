@@ -6,8 +6,8 @@ import 'package:http/http.dart' as http;
 
 class AsistenciaService {
   final posicionOficina = const Position(
-      longitude: -122.0849872,
-      latitude: 37.4226711,
+      longitude: -5.188682,
+      latitude: -80.642997,
       timestamp: null,
       accuracy: 15,
       altitude: 1,

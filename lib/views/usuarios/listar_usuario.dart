@@ -35,11 +35,13 @@ class _HistorialUsuariosState extends State<HistorialUsuarios> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de usuarios'),
-        backgroundColor: Colors.purple, // Cambia el color de la barra a púrpura
+        title: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: const Text('Lista de usuarios'),
+        ),
+        backgroundColor: Colors.purple,
         actions: <Widget>[
           _buildFiltroDropdown(),
-          // Agrega aquí otros elementos de acción si es necesario
         ],
       ),
       body: _buildUsuariosList(),
@@ -48,7 +50,7 @@ class _HistorialUsuariosState extends State<HistorialUsuarios> {
 
   Widget _buildUsuariosList() {
     if (_usuarios == null) {
-      return Center(
+      return const Center(
         child: CircularProgressIndicator(),
       );
     }
@@ -60,7 +62,7 @@ class _HistorialUsuariosState extends State<HistorialUsuarios> {
             .toList();
 
     if (usuariosFiltrados.isEmpty) {
-      return Center(
+      return const Center(
         child: Text('No hay usuarios disponibles.'),
       );
     }
@@ -82,19 +84,12 @@ class _HistorialUsuariosState extends State<HistorialUsuarios> {
         borderRadius: BorderRadius.circular(15),
       ),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         title: Text(
           'Nombre: ${usuario.nombres} ${usuario.apellidos}',
-          style: TextStyle(fontSize: 18),
+          style: const TextStyle(fontSize: 18),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Correo: ${usuario.email}'),
-            Text('Rol: ${usuario.rol}'),
-          ],
-        ),
+        subtitle: Text('Correo: ${usuario.email}\nRol: ${usuario.rol}'),
         onTap: () => _mostrarDetallesUsuario(usuario),
       ),
     );
@@ -108,103 +103,89 @@ class _HistorialUsuariosState extends State<HistorialUsuarios> {
           title: const Text('Detalles del usuario'),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Nombre: ${usuario.nombres} ${usuario.apellidos}'),
-              Text('DNI: ${usuario.dni}'),
-              Text('Correo electrónico: ${usuario.email}'),
-              Text('Teléfono: ${usuario.telefono}'),
-              Text('Género: ${usuario.genero}'),
+              _buildDetailText('Nombre', '${usuario.nombres} ${usuario.apellidos}'),
+              _buildDetailText('DNI', '${usuario.dni}'),
+              _buildDetailText('Correo electrónico', '${usuario.email}'),
+              _buildDetailText('Teléfono', '${usuario.telefono}'),
+              _buildDetailText('Género', '${usuario.genero}'),
             ],
           ),
           actions: <Widget>[
-            TextButton(
-              child: const Text('Editar'),
-              onPressed: () {
-                _editarUsuario(usuario);
-                Navigator.of(context)
-                    .pop(); // Cierra el AlertDialog después de editar.
-              },
-            ),
-            TextButton(
-              child: const Text('Cerrar'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
+            _buildAlertDialogButton('Editar', () => _editarUsuario(usuario)),
+            _buildAlertDialogButton('Cerrar', () => Navigator.of(context).pop()),
           ],
         );
       },
     );
   }
 
-void _editarUsuario(Usuario usuario) {
-  String nuevaContrasena = "";
+  Widget _buildDetailText(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Text('$label: $value'),
+    );
+  }
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: const Text('Editar usuario'),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Nombre: ${usuario.nombres} ${usuario.apellidos}'),
-                SizedBox(height: 16),
-                Text('Teléfono: ${usuario.telefono}'),
-                SizedBox(height: 16),
-                Text('Género: ${usuario.genero}'),
-                SizedBox(height: 16),
-                TextField(
-                  onChanged: (value) {
-                    setState(() {
-                      nuevaContrasena = value;
-                    });
+  void _editarUsuario(Usuario usuario) {
+    String nuevaContrasena = "";
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Editar usuario'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDetailText('Nombre', '${usuario.nombres} ${usuario.apellidos}'),
+                  const SizedBox(height: 16),
+                  _buildDetailText('Teléfono', '${usuario.telefono}'),
+                  const SizedBox(height: 16),
+                  _buildDetailText('Género', '${usuario.genero}'),
+                  const SizedBox(height: 16),
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        nuevaContrasena = value;
+                      });
+                    },
+                    decoration: const InputDecoration(labelText: 'Nueva Contraseña'),
+                  ),
+                ],
+              ),
+              actions: [
+                _buildAlertDialogButton('Cancelar', () => Navigator.of(context).pop()),
+                ElevatedButton(
+                  onPressed: () async {
+                    await _cambiarContrasena(usuario.id, nuevaContrasena);
+                    Navigator.of(context).pop();
                   },
-                  decoration: InputDecoration(labelText: 'Nueva Contraseña'),
+                  child: const Text('Guardar Cambios'),
                 ),
               ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Cerrar el diálogo
-                },
-                child: Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  // Lógica para cambiar la contraseña aquí
-                  await _cambiarContrasena(usuario.id, nuevaContrasena);
-                  Navigator.of(context).pop(); // Cerrar el diálogo
-                },
-                child: Text('Guardar Cambios'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
+            );
+          },
+        );
+      },
+    );
+  }
 
   Future<void> _cambiarContrasena(int? userId, String nuevaContrasena) async {
     if (userId != null) {
       final authService = AuthService();
-      final response =
-          await authService.cambiarContrasenia(userId, nuevaContrasena);
+      final response = await authService.cambiarContrasenia(userId, nuevaContrasena);
 
       if (response['success']) {
-        // Contraseña cambiada correctamente
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Contraseña cambiada correctamente'),
           duration: Duration(seconds: 2),
         ));
       } else {
-        // Hubo un error al cambiar la contraseña
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Error al cambiar la contraseña'),
           duration: Duration(seconds: 2),
         ));
@@ -222,7 +203,7 @@ void _editarUsuario(Usuario usuario) {
           _filtroSeleccionado = newValue!;
         });
       },
-      items: <String>['Todos', 'Colaborador', 'Interno', 'Administrador']
+      items: <String>['Todos', 'Colaborador', 'Interno', 'Administrador', 'Practicante']
           .map<DropdownMenuItem<String>>(
             (String value) => DropdownMenuItem<String>(
               value: value,
@@ -230,6 +211,13 @@ void _editarUsuario(Usuario usuario) {
             ),
           )
           .toList(),
+    );
+  }
+
+  Widget _buildAlertDialogButton(String label, VoidCallback onPressed) {
+    return TextButton(
+      onPressed: onPressed,
+      child: Text(label),
     );
   }
 }

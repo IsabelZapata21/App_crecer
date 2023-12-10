@@ -42,7 +42,7 @@ class AcercaDe extends StatelessWidget {
               ),
               SizedBox(height: 16.0),
               Text(
-                'Descripción de la Aplicación: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                'Descripción de la Aplicación: El aplicativo móvil se desarrolló con Flutter y una arquitectura MVVM, integrándose con el sitio web existente de la empresa. Consta de módulos como gestión de usuarios, historiales clínicos, programación de citas, comunicación interna y control de asistencias. Los resultados de la implementación fueron altamente positivos, con mejoras significativas percibidas por los usuarios en áreas como la eficiencia de la gestión clínica y de citas.',
                 style: TextStyle(
                   fontSize: 16.0,
                   color: Colors.black87,

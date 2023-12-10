@@ -22,6 +22,7 @@ class ChatScreenState extends State<ChatScreen> {
   // variables
   final ImagePicker _image = ImagePicker();
   File? archivo;
+   final ScrollController _scrollController = ScrollController();
 
   final TextEditingController _textController = TextEditingController();
 

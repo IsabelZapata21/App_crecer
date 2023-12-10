@@ -19,7 +19,7 @@ class Dashboard extends StatelessWidget {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Colors.purple,
-        title: Text('Dashboard'),
+        title: Text('Inicio'),
         elevation: 0,
         actions: <Widget>[
           PopupMenuButton(
