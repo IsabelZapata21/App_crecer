@@ -33,7 +33,6 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
 
   @override
   Widget build(BuildContext context) {
-    final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Asistencia'),
@@ -44,11 +43,6 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Text(
-            //   'Asistencias',
-            //   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            // ),
-            // SizedBox(height: 20),
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -112,68 +106,16 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
                     ),
             ),
             Center(
-              child: ElevatedButton(
-                onPressed: () async {
-                  final permisos = await service.tienePermisos();
-                  if (!permisos) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'No tienes permisos para ver tu posición, actualiza desde la configuración de la aplicación',
-                        ),
-                      ),
-                    );
-                    return;
-                  }
-
-                  // Mostrar el diálogo para confirmar la asistencia
-                  bool confirmado = await showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Confirmar Asistencia'),
-                      content: Text('¿Quieres marcar tu asistencia?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context, false); // No confirmado
-                          },
-                          child: Text('Cancelar'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context, true); // Confirmado
-                          },
-                          child: Text('Aceptar'),
-                        ),
-                      ],
-                    ),
-                  );
-
-                  if (confirmado == true) {
-                    // Tomar la foto
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TomarFotoPage(),
-                      ),
-                    );
-
-                    // Actualizar la lista de asistencias después de tomar la foto
-                    asistencias = await service.obtenerAsistencias(usuario?.id);
-                    setState(() {});
-                  }
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.camera_alt),
-                    SizedBox(width: 8),
-                    Text('Marcar asistencia'),
-                  ],
-                ),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.deepPurple,
-                  onPrimary: Colors.white,
+              child: Hero(
+                tag: 'HeroCameraButton',
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.camera_alt),
+                  onPressed: goToPhotoView,
+                  label: const Text('Marcar asistencia'),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.deepPurple,
+                    onPrimary: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -181,6 +123,31 @@ class _AsistenciaPageState extends State<AsistenciaPage> {
         ),
       ),
     );
+  }
+
+  void goToPhotoView() async {
+    final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
+    final permisos = await service.tienePermisos();
+    if (!permisos) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'No tienes permisos para ver tu posición, actualiza desde la configuración de la aplicación',
+          ),
+        ),
+      );
+      return;
+    }
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TomarFotoPage(),
+      ),
+    );
+
+    // Actualizar la lista de asistencias después de tomar la foto
+    asistencias = await service.obtenerAsistencias(usuario?.id);
+    setState(() {});
   }
 }
 
@@ -203,13 +170,8 @@ class AttendanceTile extends StatelessWidget {
         onTap: () {
           if (path.isEmpty) return;
           print(path);
+          viewPhoto(context, path);
           // Navega a la nueva página con la foto en grande
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PhotoPage(imagePath: path),
-            ),
-          );
         },
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Text(fecha, style: TextStyle(fontWeight: FontWeight.bold)),
@@ -222,24 +184,12 @@ class AttendanceTile extends StatelessWidget {
   }
 }
 
-// Define tu página de la foto
-class PhotoPage extends StatelessWidget {
-  final String imagePath;
-
-  PhotoPage({required this.imagePath});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Foto en Grande'),
-      ),
-      body: Center(
+Future<void> viewPhoto(BuildContext context, String path) => showDialog(
+      context: context,
+      builder: (context) => Center(
         child: Image.network(
-          imagePath,
+          path,
           fit: BoxFit.contain,
         ),
       ),
     );
-  }
-}

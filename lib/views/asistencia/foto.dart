@@ -58,11 +58,15 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
   late final CameraController _controller;
   late final Future<void> _initializeControllerFuture;
   final service = AsistenciaService();
+  XFile? imagePath;
+  bool waitingForCapture = false;
+  bool? localizado;
 
   @override
   void initState() {
     super.initState();
     _initializeCamera();
+    _initializeLocation();
   }
 
   _initializeCamera() async {
@@ -86,94 +90,203 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
     setState(() {});
   }
 
+  _initializeLocation() async {
+    if (localizado != null) {
+      localizado = null;
+      setState(() {});
+    }
+    await Future.delayed(const Duration(seconds: 1));
+    localizado = await service.estaEnOficina();
+    setState(() {});
+  }
+
+  Widget _cameraWidget(CameraController controller) {
+    final camera = controller.value;
+    final size = MediaQuery.sizeOf(context);
+    var scale = size.aspectRatio * camera.aspectRatio;
+    if (scale < 1) scale = 1 / scale;
+    return Transform.scale(
+      scale: scale,
+      child: Center(
+        child: CameraPreview(controller),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tomar foto'),
-        backgroundColor: Colors.purple,
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Center(
-            child: FutureBuilder<void>(
-              future: _initializeControllerFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  }
-                  return _controller.value.isInitialized
-                      ? CameraPreview(_controller)
-                      : const Center(child: Text('Esperando...'));
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
+    final fullScreen = MediaQuery.sizeOf(context).height;
+    return WillPopScope(
+      onWillPop: () async {
+        if (imagePath != null) {
+          setState(() {
+            imagePath = null;
+          });
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          title: const Text('Tomar foto'),
+          backgroundColor: Colors.purple,
+        ),
+        body: Stack(
+          children: [
+            imagePath == null
+                ? Center(
+                    child: FutureBuilder<void>(
+                      future: _initializeControllerFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          }
+                          return _controller.value.isInitialized
+                              ? _cameraWidget(_controller)
+                              : const Text('Esperando...');
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
+                      },
+                    ),
+                  )
+                : Positioned.fill(
+                    child: Image.file(
+                      File(imagePath!.path),
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton(
+                    onPressed: _initializeLocation,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        localizado != null
+                            ? Icon(
+                                localizado == true
+                                    ? Icons.check
+                                    : Icons.info_outline,
+                                color: localizado == true
+                                    ? Colors.green
+                                    : Colors.yellow)
+                            : const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                        const SizedBox(width: 8),
+                        Text(
+                          localizado == null
+                              ? 'Buscando ubicación'
+                              : localizado == true
+                                  ? 'En oficina'
+                                  : 'Ubicación sin reconocer',
+                          style: TextStyle(
+                              color: localizado == null
+                                  ? Colors.white
+                                  : localizado == true
+                                      ? Colors.green
+                                      : Colors.yellow),
+                        ),
+                      ],
+                    ),
+                  ),
+                  waitingForCapture
+                      ? const CircularProgressIndicator()
+                      : imagePath == null
+                          ? Hero(
+                              tag: 'HeroCameraButton',
+                              child: ElevatedButton.icon(
+                                icon: const Icon(Icons.camera_alt),
+                                onPressed: _takePicture,
+                                style: ElevatedButton.styleFrom(
+                                    primary: Colors.deepPurple,
+                                    onPrimary: Colors.white),
+                                label: const Text('Tomar foto'),
+                              ),
+                            )
+                          : Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () => setState(() {
+                                    imagePath = null;
+                                  }),
+                                  style: ElevatedButton.styleFrom(
+                                      primary: Colors.deepPurple,
+                                      onPrimary: Colors.white),
+                                  child: const Text('Volver a tomar'),
+                                ),
+                                const SizedBox(width: 4),
+                                Hero(
+                                  tag: 'HeroCameraButton',
+                                  child: ElevatedButton.icon(
+                                    icon: const Icon(Icons.assistant),
+                                    onPressed: _takePicture,
+                                    style: ElevatedButton.styleFrom(
+                                        primary: Colors.deepPurple,
+                                        onPrimary: Colors.white),
+                                    label: const Text('Marcar asistencia'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                  SizedBox(height: fullScreen * .1),
+                ],
+              ),
             ),
-          ),
-          ElevatedButton(
-            onPressed: _takePicture,
-            style: ElevatedButton.styleFrom(primary: Colors.purple),
-            child: const Text('Marcar Asistencia'),
-          ),
-          const SizedBox(height: 20),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   void _takePicture() async {
+    if (imagePath == null) {
+      waitingForCapture = true;
+      setState(() {});
+      imagePath = await _controller.takePicture();
+      waitingForCapture = false;
+      setState(() {});
+      return;
+    }
     final usuario = Provider.of<UserRepository>(context, listen: false).usuario;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Confirmar"),
-          content: const Text("¿Deseas guardar la foto?"),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("Cancelar"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text("Aceptar"),
-              onPressed: () async {
-                try {
-                  await _initializeControllerFuture;
-                  final XFile image = await _controller.takePicture();
-                  String imagePath = image.path;
-
-                  // Llamada al método para subir la imagen a Firebase Storage
-                  final value = await uploadImage(File(imagePath),
-                      'asistencias/${DateTime.now().millisecondsSinceEpoch}.jpg');
-                  if (value == null) throw ('No se pudo subir al repositorio.');
-                  if (usuario?.id == null) throw ('Sesión perdida.');
-                  // Aquí puedes continuar con el resto del código
-                  final enOficina = await service.estaEnOficina();
-                  final asistencia = Asistencia(
-                      urlFoto: value,
-                      estado: enOficina,
-                      idUsuario: usuario?.id);
-                  await service.registrarAsistencia(asistencia);
-                  Navigator.of(context).pop();
-                } catch (e) {
-                  print(e);
-                  // Mostrar un mensaje de error al usuario
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al tomar la foto: $e')),
-                  );
-                }
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+    final subir = await confirmUploadImage(context);
+    if (!subir) return;
+    final file = imagePath?.path ?? '';
+    if (file.isEmpty) return;
+    try {
+      if (usuario?.id == null) throw ('Sesión perdida.');
+      // Llamada al método para subir la imagen a Firebase Storage
+      waitingForCapture = true;
+      setState(() {});
+      final value = await uploadImage(File(file),
+          'asistencias/${DateTime.now().millisecondsSinceEpoch}.jpg');
+      if (value == null) throw ('No se pudo subir al repositorio.');
+      // Aquí puedes continuar con el resto del código
+      final asistencia = Asistencia(
+          urlFoto: value, estado: localizado ?? false, idUsuario: usuario?.id);
+      await service.registrarAsistencia(asistencia);
+      Navigator.of(context).pop();
+    } catch (e) {
+      print(e);
+      // Mostrar un mensaje de error al usuario
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al tomar la foto: $e')),
+      );
+    }
   }
 
   @override
@@ -183,4 +296,27 @@ class _TomarFotoPageState extends State<TomarFotoPage> {
     }
     super.dispose();
   }
+}
+
+Future<bool> confirmUploadImage(context) async {
+  final value = await showDialog<bool?>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Confirmar asistencia"),
+        content: const Text("¿Deseas marcar tu asistencia?"),
+        actions: <Widget>[
+          TextButton(
+            child: const Text("Cancelar"),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          TextButton(
+            child: const Text("Aceptar"),
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      );
+    },
+  );
+  return value ?? false;
 }
