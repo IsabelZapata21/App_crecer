@@ -5,8 +5,8 @@ import 'package:flutter_application_2/services/citas/citas_service.dart';
 import 'package:flutter_application_2/services/citas/pacientes_service.dart';
 import 'package:flutter_application_2/services/citas/psicologos_service.dart';
 import 'package:flutter_application_2/viewmodels/citas/registro_viewmodel.dart';
+import 'package:flutter_application_2/views/citas/widgets/time_range_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:time_range_picker/time_range_picker.dart';
 
 class Registro extends StatelessWidget {
   const Registro({super.key});
@@ -30,8 +30,11 @@ class _CitasPageState extends State<CitasPage> {
   Psicologo? psicologo;
   DateTime fechaCita = DateTime.now();
   TimeOfDay horaCita = TimeOfDay.now();
+  TimeOfDay finCita = TimeOfDay.now().replacing(hour: TimeOfDay.now().hour + 2);
   String? estadoCita;
   int created = 1;
+
+  bool get isValuesSelected => paciente != null && psicologo != null;
 
   final telController = TextEditingController();
   final dirController = TextEditingController();
@@ -42,6 +45,7 @@ class _CitasPageState extends State<CitasPage> {
 
   // Listas para las opciones de psicólogos y estados de la cita
   List<Psicologo>? psicologos;
+  List<CitaDuration> citas = [];
   List<String> estadosCita = ['Pendiente', 'Cancelado'];
   List<Pacientes>? pacientes;
 
@@ -87,10 +91,11 @@ class _CitasPageState extends State<CitasPage> {
       'psicologo': psicologo?.id,
       'fechaCita': fechaCita.toString(),
       'horaCita': horaCita.format(context),
+      'finCita': finCita.format(context),
       'estadoCita': estadoCita,
       'created': created,
     };
-print(citaData);
+    print(citaData);
     try {
       String mensaje = await CitasService().programarCita(citaData);
       // Si se guardó con éxito, muestra un dialog
@@ -135,6 +140,7 @@ print(citaData);
       psicologo = null;
       fechaCita = DateTime.now();
       horaCita = TimeOfDay.now();
+      finCita = TimeOfDay.now().replacing(hour: TimeOfDay.now().hour + 2);
       estadoCita = estadosCita[0];
       telController.clear();
       dirController.clear();
@@ -197,9 +203,25 @@ print(citaData);
                     );
                   }).toList(),
                 ],
-                onChanged: (value) {
+                onChanged: (value) async {
+                  psicologo = value;
+                  final id = int.tryParse(psicologo?.id ?? '0');
+                  final fecha = DateFormat('y-M-d').format(fechaCita.toLocal());
+                  final citas =
+                      await PsicologoService().obtenerDisponibilidad(id, fecha);
+                  this.citas = citas;
+                  if (citas.isNotEmpty) {
+                    final endTime =
+                        DateTime.tryParse('0000-00-00 ${citas.last.finCita}');
+                    if (endTime != null) {
+                      final newTime = TimeOfDay.fromDateTime(endTime);
+                      horaCita = newTime;
+                      finCita = newTime.minute < 55
+                          ? newTime.replacing(minute: 59)
+                          : newTime.replacing(hour: newTime.hour + 1);
+                    }
+                  }
                   setState(() {
-                    psicologo = value;
                     espController.text = value?.especialidad ?? '';
                   });
                 },
@@ -241,6 +263,7 @@ print(citaData);
               const SizedBox(height: 16),
               TextFormField(
                 controller: desController,
+                enabled: isValuesSelected,
                 decoration: InputDecoration(
                   labelText: 'Descripción',
                   prefixIcon: Icon(Icons.note, color: Colors.purple),
@@ -249,45 +272,79 @@ print(citaData);
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () async {
-                  final fechaSeleccionada = await showDatePicker(
-                    context: context,
-                    initialDate: fechaCita,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2101),
-                  );
-                  if (fechaSeleccionada != null &&
-                      fechaSeleccionada != fechaCita) {
-                    setState(() {
-                      fechaCita = fechaSeleccionada;
-                    });
-                  }
-                },
+                onPressed: isValuesSelected
+                    ? () async {
+                        final fechaSeleccionada = await showDatePicker(
+                          context: context,
+                          initialDate: fechaCita,
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2101),
+                        );
+                        if (fechaSeleccionada != null &&
+                            fechaSeleccionada != fechaCita) {
+                          setState(() {
+                            fechaCita = fechaSeleccionada;
+                          });
+                        }
+                      }
+                    : null,
                 child: Text(
-                  DateFormat('EEEE, d MMMM y','es').format(fechaCita.toLocal()),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  DateFormat('EEEE, d MMMM y', 'es')
+                      .format(fechaCita.toLocal()),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               ElevatedButton(
-                onPressed: () async {
-                  TimeOfDay newTimeOfDay =
-                      horaCita.replacing(hour: (horaCita.hour + 3) % 24);
-                  final horaSeleccionada = await showTimeRangePicker(
-                    disabledTime:
-                        TimeRange(startTime: horaCita, endTime: newTimeOfDay),
-                    start: newTimeOfDay,
-                    context: context,
-                  );
-                  if (horaSeleccionada != null &&
-                      horaSeleccionada != horaCita) {
-                    setState(() {
-                      horaCita = horaSeleccionada.startTime;
-                    });
-                  }
-                },
+                onPressed: isValuesSelected
+                    ? () async {
+                        final disabledTime = <TimeRange>[];
+                        for (var element in citas) {
+                          final startTime = DateTime.tryParse(
+                              '0000-00-00 ${element.horaCita}');
+                          final endTime = DateTime.tryParse(
+                              '0000-00-00 ${element.finCita}');
+                          if (startTime == null || endTime == null) continue;
+                          disabledTime.add(TimeRange(
+                              startTime: TimeOfDay.fromDateTime(startTime),
+                              endTime: TimeOfDay.fromDateTime(endTime)));
+                        }
+                        final horaSeleccionada = await showTimeRangePicker(
+                            context: context,
+                            maxDuration: const Duration(hours: 2),
+                            minDuration: const Duration(hours: 1),
+                            autoAdjustLabels: true,
+                            paintingStyle: PaintingStyle.stroke,
+                            labels: [
+                              "12 am",
+                              "3 am",
+                              "6 am",
+                              "9 am",
+                              "12 pm",
+                              "3 pm",
+                              "6 pm",
+                              "9 pm"
+                            ].asMap().entries.map((e) {
+                              return ClockLabel.fromIndex(
+                                  idx: e.key, length: 8, text: e.value);
+                            }).toList(),
+                            labelOffset: -30,
+                            start: disabledTime.isNotEmpty
+                                ? disabledTime.last.endTime
+                                : horaCita,
+                            end: finCita,
+                            disabledTime: disabledTime);
+                        if (horaSeleccionada != null) {
+                          setState(() {
+                            horaCita = horaSeleccionada.startTime;
+                            finCita = horaSeleccionada.endTime;
+                          });
+                        }
+                      }
+                    : null,
                 child: Text(
-                  horaCita.format(context),
+                  '${horaCita.format(context)} - ${finCita.format(context)}',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -300,11 +357,13 @@ print(citaData);
                     child: Text(estado),
                   );
                 }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    estadoCita = value.toString();
-                  });
-                },
+                onChanged: isValuesSelected
+                    ? (value) {
+                        setState(() {
+                          estadoCita = value.toString();
+                        });
+                      }
+                    : null,
                 decoration: InputDecoration(
                   labelText: 'Estado de la Cita',
                   border: OutlineInputBorder(),
@@ -312,9 +371,11 @@ print(citaData);
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () async {
-                  guardarCita();
-                },
+                onPressed: isValuesSelected
+                    ? () async {
+                        guardarCita();
+                      }
+                    : null,
                 child: const Text('Guardar cita'),
               ),
             ],
