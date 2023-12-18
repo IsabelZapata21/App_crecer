@@ -114,21 +114,26 @@ class _AsistenciasUsuariosState extends State<AsistenciasUsuarios> {
           content: FutureBuilder(
               future: AsistenciaService().obtenerAsistencias(usuario.id),
               builder: (context, snapshot) {
-                if(snapshot.data==null) return const Center(child: CircularProgressIndicator());
-                if (snapshot.data?.isEmpty??true){
-                  return const Text('No hay asistencias registradas');                }
+                if (snapshot.data == null)
+                  return const Center(child: CircularProgressIndicator());
+                if (snapshot.data?.isEmpty ?? true) {
+                  return const Text('No hay asistencias registradas');
+                }
                 final faltas =
-                    snapshot.data?.where((element) => !element.estado).length??0;
+                    snapshot.data?.where((element) => !element.estado).length ??
+                        0;
                 final asistido =
-                    snapshot.data?.where((element) => element.estado).length??0;
-                final estado = faltas<asistido?'Asistiendo':'En evaluación';
+                    snapshot.data?.where((element) => element.estado).length ??
+                        0;
+                final estado =
+                    faltas < asistido ? 'Asistiendo' : 'En evaluación';
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize
                       .min, // Ajusta el tamaño vertical según el contenido
                   children: [
                     Text('Estado: ${estado}'),
-                    Text('Fecha:${snapshot.data?.last.fecha}'),
+                    Text('Última fecha: ${formatoFecha(snapshot.data?.last.fecha)}'),
                     Text('Faltas:${faltas}'),
                     Text('Asistencias:${asistido}')
                   ],
@@ -153,6 +158,22 @@ class _AsistenciasUsuariosState extends State<AsistenciasUsuarios> {
         );
       },
     );
+  }
+
+  String formatoFecha(DateTime? fecha) {
+    if (fecha == null) {
+      return 'Fecha no disponible'; // o cualquier valor predeterminado que desees
+    }
+
+    int dia = fecha.day;
+    int mes = fecha.month;
+    int anio = fecha.year;
+
+    // Formatea la fecha como "dd-mm-yy"
+    String formato =
+        '${dia.toString().padLeft(2, '0')}-${mes.toString().padLeft(2, '0')}-${anio.toString().substring(2)}';
+
+    return formato;
   }
 
   Widget _buildFiltroDropdown() {

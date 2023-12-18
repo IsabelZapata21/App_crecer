@@ -209,14 +209,14 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       value: _estado,
-                      items: ['P', 'R', 'C'].map((String estado) {
+                      items: ['P', 'R', 'C',].map((String estado) {
                         return DropdownMenuItem<String>(
                           value: estado,
                           child: Text(estado == 'P'
                               ? 'Pendiente'
                               : estado == 'C'
                                   ? 'Cancelado'
-                                  : 'Reportado'),
+                                  : 'Realizada'),
                         );
                       }).toList(),
                       onChanged: (value) {

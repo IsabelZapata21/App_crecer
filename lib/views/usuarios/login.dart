@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/models/auth/usuario.dart';
 import 'package:flutter_application_2/services/auth/auth_service.dart';
@@ -8,9 +6,8 @@ import 'package:flutter_application_2/views/dashboard/dashboard.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/services/auth/auth_manager.dart';
 
-
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   LoginPageState createState() => LoginPageState();
@@ -19,23 +16,47 @@ class LoginPage extends StatefulWidget {
 class LoginPageState extends State<LoginPage> {
   TextEditingController user = TextEditingController();
   TextEditingController pass = TextEditingController();
-  String mensaje = '';
   bool obscurePassword = true; // Variable para controlar la visibilidad de la contraseña
 
   Future<void> login() async {
     try {
-      if (user.text.isEmpty || pass.text.isEmpty) throw ('Campos vacíos');
+      // Validar campos vacíos
+      if (user.text.isEmpty || pass.text.isEmpty) {
+        throw ('Campos vacíos. Por favor, completa todos los campos.');
+      }
+
       final wa = Provider.of<UserRepository>(context, listen: false);
       final value = await AuthService().iniciarSesion(user.text, pass.text);
-      if (!(value['success'] ?? false)) throw ('Clave o contraseña incorrecta');
+
+      // Validar éxito en la respuesta
+      if (!(value['success'] ?? false)) {
+        throw ('Clave o contraseña incorrecta. Por favor, verifica tus credenciales.');
+      }
+
       wa.usuario = Usuario.fromJson(value['usuario']);
-      //iniciar sesion
+      // Iniciar sesión
       await AuthManager.logIn(user.text, pass.text);
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => Dashboard()));
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toString())));
+      // Mostrar error en un AlertDialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error de inicio de sesión'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -49,15 +70,15 @@ class LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Icon(Icons.account_circle,
-                    size: 100, color: Colors.purple), // Logo o ícono
+                Icon(Icons.account_circle, size: 100, color: Colors.purple), // Logo o ícono
                 SizedBox(height: 20.0),
                 Text(
                   'Inicia sesión',
                   style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.purple),
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.purple,
+                  ),
                 ),
                 SizedBox(height: 20.0),
                 Padding(
@@ -127,20 +148,6 @@ class LoginPageState extends State<LoginPage> {
                   ),
                   child: const Text('Ingresar'),
                 ),
-                if (mensaje.isNotEmpty)
-                  Container(
-                    margin: const EdgeInsets.all(16.0),
-                    padding: const EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.red[100],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      mensaje,
-                      style: TextStyle(color: Colors.red, fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
               ],
             ),
           ),

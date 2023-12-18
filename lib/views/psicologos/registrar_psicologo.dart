@@ -1,91 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/models/auth/usuario.dart';
 import 'package:flutter_application_2/services/auth/auth_service.dart';
+import 'package:flutter_application_2/services/citas/psicologos_service.dart';
 import 'package:flutter_application_2/services/repository.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/services/auth/auth_manager.dart';
 
-class RegistroUsuarioScreen extends StatefulWidget {
+class RegistroPsicologoScreen extends StatefulWidget {
   @override
-  _RegistroUsuarioScreenState createState() => _RegistroUsuarioScreenState();
+  _RegistroPsicologoScreenState createState() => _RegistroPsicologoScreenState();
 }
 
-class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
+class _RegistroPsicologoScreenState extends State<RegistroPsicologoScreen> {
   TextEditingController nombresController = TextEditingController();
   TextEditingController apellidosController = TextEditingController();
   TextEditingController telefonoController = TextEditingController();
   TextEditingController dniController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-  TextEditingController usuarioController = TextEditingController();
-  TextEditingController contraseniaController = TextEditingController();
+  TextEditingController nacimientoController = TextEditingController();
+  TextEditingController nacionalidadController = TextEditingController();
 
-  String _selectedRol = 'Seleccionar'; // Valor predeterminado
+  String _selectedEspecialidad = 'Seleccionar'; // Valor predeterminado
   String _selectedGenero = 'Seleccionar'; // Valor predeterminado
+  
 
-  List<String> roles = [
-    'Seleccionar',
-    'Colaborador',
-    'Administrador',
-    'Interno',
-    'Practicante'
-  ];
-  List<String> genero = [
-    'Seleccionar',
-    'Masculino',
-    'Femenino',
-    'Sin especificar'
-  ];
+  List<String> especialidades = ['Seleccionar', 'Especialidad 1', 'Especialidad 2', 'Especialidad 3']; // Reemplaza con tus especialidades
+  List<String> genero = ['Seleccionar', 'Masculino', 'Femenino', 'Sin especificar'];
 
-  Future<void> _registrarUsuario() async {
-  try {
-    // Validar que los campos no estén vacíos
-    if (nombresController.text.isEmpty) {
-      throw ('Falta ingresar los nombres');
-    } else if (apellidosController.text.isEmpty) {
-      throw ('Falta ingresar los apellidos');
-    } else if (telefonoController.text.isEmpty) {
-      throw ('Falta ingresar el teléfono');
-    } else if (telefonoController.text.length != 9) {
-      throw ('El número de teléfono debe tener 9 dígitos');
-    } else if (dniController.text.isEmpty) {
-      throw ('Falta ingresar el DNI');
-    } else if (dniController.text.length != 8) {
-      throw ('El DNI debe tener 8 dígitos');
-    } else if (emailController.text.isEmpty) {
-      throw ('Falta ingresar el correo electrónico');
-    } else if (!_esCorreoValido(emailController.text)) {
-      throw ('Ingrese un correo electrónico válido');
-    } else if (usuarioController.text.isEmpty) {
-      throw ('Falta ingresar el usuario');
-    } else if (contraseniaController.text.isEmpty) {
-      throw ('Falta ingresar la contraseña');
-    } else if (!_esContraseniaFuerte(contraseniaController.text)) {
-      throw ('La contraseña debe contener al menos una mayúscula, un número y un símbolo');
-    } else if (_selectedRol == 'Seleccionar') {
-      throw ('Falta seleccionar el rol');
-    } else if (_selectedGenero == 'Seleccionar') {
-      throw ('Falta seleccionar el género');
-    }
+  Future<void> _registrarPsicologo() async {
+    try {
+      // Validar que los campos no estén vacíos
+      // Puedes agregar más validaciones según tus necesidades
 
-      Map<String, dynamic> userData = {
-        'rol': _selectedRol,
+      Map<String, dynamic> psicologoData = {
+        'id_especialidad': especialidades.indexOf(_selectedEspecialidad) + 1, // Sumar 1 porque los índices en la base de datos comienzan desde 1
+        'dni': dniController.text,
         'nombres': nombresController.text,
         'apellidos': apellidosController.text,
-        'telefono': telefonoController.text,
         'genero': _selectedGenero,
-        'dni': dniController.text,
-        'email': emailController.text,
-        'usuario': usuarioController.text,
-        'contrasenia': contraseniaController.text,
-        'create_at': Provider.of<UserRepository>(context, listen: false).usuario?.id
+        'telefono': telefonoController.text,
+        'nacimiento': nacimientoController.text,
+        'correo': emailController.text,
+        'nacionalidad': nacionalidadController.text,
       };
 
-      // Llamar al servicio de registro
-      final value = await AuthService().registrarUsuario(userData);
+      // Llamar al servicio de registro de psicólogo
+      final value = await PsicologoService().registrarPsicologo(psicologoData);
 
       // Verificar si el registro fue exitoso
       if (!(value['success'] ?? false)) {
-        throw ('Error al registrar usuario: ${value['message']}');
+        throw ('Error al registrar psicólogo: ${value['message']}');
       }
 
       // Redirigir a la pantalla de Dashboard después del registro exitoso
@@ -111,24 +75,13 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
       );
     }
   }
-  bool _esCorreoValido(String correo) {
-  // Utilizar una expresión regular para validar el formato del correo electrónico
-  final emailRegExp = RegExp(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$');
-  return emailRegExp.hasMatch(correo);
-}
-
-bool _esContraseniaFuerte(String contrasenia) {
-  // Utilizar una expresión regular para validar la fortaleza de la contraseña
-  final passwordRegExp = RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$');
-  return passwordRegExp.hasMatch(contrasenia);
-}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Registro de usuario',
+          'Registro de psicólogo',
           style: TextStyle(
             color: Colors.white,
           ),
@@ -142,20 +95,20 @@ bool _esContraseniaFuerte(String contrasenia) {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               DropdownButtonFormField(
-                value: _selectedRol,
+                value: _selectedEspecialidad,
                 onChanged: (value) {
                   setState(() {
-                    _selectedRol = value.toString();
+                    _selectedEspecialidad = value.toString();
                   });
                 },
-                items: roles.map((rol) {
+                items: especialidades.map((especialidad) {
                   return DropdownMenuItem(
-                    value: rol,
-                    child: Text(rol),
+                    value: especialidad,
+                    child: Text(especialidad),
                   );
                 }).toList(),
                 decoration: const InputDecoration(
-                  labelText: 'Rol',
+                  labelText: 'Especialidad',
                   icon: Icon(Icons.remember_me_outlined, color: Colors.purple),
                 ),
               ),
@@ -217,23 +170,22 @@ bool _esContraseniaFuerte(String contrasenia) {
                 ),
               ),
               TextField(
-                controller: usuarioController,
+                controller: nacimientoController,
                 decoration: InputDecoration(
-                  labelText: 'Usuario',
-                  icon: Icon(Icons.person, color: Colors.purple),
+                  labelText: 'Fecha de Nacimiento',
+                  icon: Icon(Icons.calendar_today, color: Colors.purple),
                 ),
               ),
               TextField(
-                controller: contraseniaController,
-                obscureText: true,
+                controller: nacionalidadController,
                 decoration: InputDecoration(
-                  labelText: 'Contraseña',
-                  icon: Icon(Icons.lock, color: Colors.purple),
+                  labelText: 'Nacionalidad',
+                  icon: Icon(Icons.location_on, color: Colors.purple),
                 ),
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _registrarUsuario,
+                onPressed: _registrarPsicologo,
                 style: ElevatedButton.styleFrom(
                   primary: Colors.purple,
                   shape: RoundedRectangleBorder(

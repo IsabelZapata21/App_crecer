@@ -7,7 +7,7 @@ import 'package:flutter_application_2/views/cronograma/cronograma.dart';
 import 'package:flutter_application_2/services/auth/auth_manager.dart';
 import 'package:flutter_application_2/views/usuarios/splash.dart';
 //import 'package:flutter_application_2/views/usuarios/registrar.dart';
-import 'package:flutter_application_2/views/usuarios/usuario_dash.dart';
+import 'package:flutter_application_2/views/usuarios/admin_funciones.dart';
 import 'package:flutter_application_2/views/dashboard/acerca.dart';
 import 'package:provider/provider.dart';
 
@@ -114,12 +114,12 @@ class Dashboard extends StatelessWidget {
         if (usuario?.isAdministrator == true)
           _buildOptionItem(
             context,
-            'Usuarios',
+            'Admintrador',
             Icons.person,
             () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => UsuarioDashboard()),
+                MaterialPageRoute(builder: (context) => AdminDashboard()),
               );
             },
           ),

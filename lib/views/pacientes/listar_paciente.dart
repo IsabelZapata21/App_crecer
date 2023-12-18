@@ -10,12 +10,12 @@ import 'package:intl/intl.dart';
 import 'package:flutter_application_2/services/auth/auth_manager.dart';
 import 'package:flutter_application_2/views/usuarios/splash.dart';
 
-class HistorialCitas extends StatefulWidget {
+class HistorialPacientes extends StatefulWidget {
   @override
-  _HistorialCitasState createState() => _HistorialCitasState();
+  _HistorialPacientesState createState() => _HistorialPacientesState();
 }
 
-class _HistorialCitasState extends State<HistorialCitas> {
+class _HistorialPacientesState extends State<HistorialPacientes> {
   String _filtroSeleccionado = 'Todas'; // Por defecto, muestra todas las citas
   List<Psicologo>? psicologos;
   List<Pacientes>? pacientes;

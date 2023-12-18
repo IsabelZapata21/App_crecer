@@ -22,6 +22,20 @@ class PsicologoService{
       throw Exception("Error al obtener los datos");
     }
   }
+
+  Future<Map<String, dynamic>> registrarPsicologo(
+      Map<String, dynamic> data) async {
+    final response = await http.post(
+        Uri.parse('${ApiService.baseUrl}/piscologo/registrar_psicologo.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data));
+    return jsonDecode(response.body);
+  }
+
+
+
+
+
 }
 
 

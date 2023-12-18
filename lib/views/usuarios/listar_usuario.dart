@@ -114,6 +114,7 @@ class _HistorialUsuariosState extends State<HistorialUsuarios> {
           ),
           actions: <Widget>[
             _buildAlertDialogButton('Editar', () => _editarUsuario(usuario)),
+            _buildAlertDialogButton('Eliminar', () => _eliminarUsuario(usuario)),
             _buildAlertDialogButton('Cerrar', () => Navigator.of(context).pop()),
           ],
         );
@@ -194,6 +195,71 @@ class _HistorialUsuariosState extends State<HistorialUsuarios> {
       // Manejar el caso donde userId es null (opcional)
     }
   }
+void _eliminarUsuario(Usuario usuario) async {
+  if (usuario.id == null) {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text('Usuario no seleccionado'),
+        actions: [
+          TextButton(
+            child: Text('Aceptar'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  try {
+    Map<String, dynamic> respuesta =
+        await AuthService().eliminarUsuario(id: usuario.id);
+
+    // Verifica el campo 'message' en la respuesta para determinar el resultado
+    String mensaje = respuesta['message'];
+
+    // Muestra un dialog con el resultado
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(mensaje == 'Usuario eliminado exitosamente.'
+            ? 'Éxito'
+            : 'Error'),
+        content: Text(mensaje),
+        actions: [
+          TextButton(
+            child: Text('Aceptar'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              // Puedes agregar lógica adicional aquí después de cerrar el dialog
+            },
+          ),
+        ],
+      ),
+    );
+  } catch (e) {
+    // Aquí puedes manejar el caso en el que no se pudo eliminar el usuario
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text('Error al eliminar el usuario: $e'),
+        actions: [
+          TextButton(
+            child: Text('Aceptar'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  setState(() {
+    // Puedes realizar cualquier actualización de estado necesario aquí
+  });
+}
+
 
   Widget _buildFiltroDropdown() {
     return DropdownButton<String>(

@@ -67,7 +67,6 @@ class AuthService {
 
   Future<Map<String, dynamic>> cambiarContrasenia(
       int userId, String nuevaContrasenia) async {
-
     final data = {'id': userId, 'contrasenia': nuevaContrasenia};
     print(data);
     final response = await http.post(
@@ -79,11 +78,11 @@ class AuthService {
     return jsonDecode(response.body);
   }
 
-Future<Map<String, dynamic>> obtenerUsuarioYAsistencias(
-      int userId) async {
+  Future<Map<String, dynamic>> obtenerUsuarioYAsistencias(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('${ApiService.baseUrl}/auth/as_usuario.php?id_usuario=$userId'),
+        Uri.parse(
+            '${ApiService.baseUrl}/auth/as_usuario.php?id_usuario=$userId'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -91,10 +90,23 @@ Future<Map<String, dynamic>> obtenerUsuarioYAsistencias(
         final Map<String, dynamic> data = json.decode(response.body);
         return data;
       } else {
-        throw Exception('Error al obtener la información del usuario y sus asistencias');
+        throw Exception(
+            'Error al obtener la información del usuario y sus asistencias');
       }
     } catch (e) {
       throw Exception('Error en la solicitud: $e');
     }
   }
+
+Future<Map<String, dynamic>> eliminarUsuario({int? id}) async {
+  final response = await http.delete(
+    Uri.parse("${ApiService.baseUrl}/auth/eliminar_usuario.php?id=$id"),
+  );
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw Exception("Error al eliminar el usuario: ${response.body}");
+  }
+}
+
 }
