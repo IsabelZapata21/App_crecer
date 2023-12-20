@@ -19,7 +19,7 @@ class _PaciDashboardState extends State<PaciDashboard> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Colors.purple,
-        title: Text('Usuarios'),
+        title: Text('Pacientes'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

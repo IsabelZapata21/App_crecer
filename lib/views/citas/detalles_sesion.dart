@@ -285,7 +285,7 @@ class _DetallesSesionState extends State<DetallesSesion> {
                     // Observaciones
                     TextField(
                       controller: _observacionesController,
-                      decoration: const InputDecoration(labelText: 'Observaciones'),
+                      decoration: const InputDecoration(labelText: 'Diagnóstico'),
                     ),
                   ],
                 ),

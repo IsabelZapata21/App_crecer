@@ -7,9 +7,6 @@ import 'package:flutter_application_2/views/dashboard/acerca.dart';
 import 'package:flutter_application_2/services/auth/auth_manager.dart';
 import 'package:flutter_application_2/views/usuarios/splash.dart';
 
-
-
-
 class Citas extends StatelessWidget {
   final viewModel = CitasViewModel();
   Citas({super.key}); //instancia de viewModelcitas
@@ -71,7 +68,8 @@ class Citas extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -90,7 +88,6 @@ class Citas extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             _buildOptionsWidget(context),
-            const Spacer(), // Estira el modo usuario hasta la parte inferior
             Text(
               'Modo ${usuario?.rol}',
               style: const TextStyle(

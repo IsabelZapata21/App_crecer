@@ -114,7 +114,7 @@ class Dashboard extends StatelessWidget {
         if (usuario?.isAdministrator == true)
           _buildOptionItem(
             context,
-            'Admintrador',
+            'Administrador',
             Icons.person,
             () {
               Navigator.push(

@@ -18,7 +18,7 @@ class PacienteService{
    Future<Map<String, dynamic>> registrarPaciente(
       Map<String, dynamic> data) async {
     final response = await http.post(
-        Uri.parse('${ApiService.baseUrl}/psicologo/registrar_paciente.php'),
+        Uri.parse('${ApiService.baseUrl}/paciente/registrar_paciente.php'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data));
     return jsonDecode(response.body);

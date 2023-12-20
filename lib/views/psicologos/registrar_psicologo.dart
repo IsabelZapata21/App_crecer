@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/models/auth/usuario.dart';
-import 'package:flutter_application_2/services/auth/auth_service.dart';
+import 'package:flutter_application_2/models/citas/especialidad.dart';
 import 'package:flutter_application_2/services/citas/psicologos_service.dart';
-import 'package:flutter_application_2/services/repository.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_application_2/services/auth/auth_manager.dart';
 
 class RegistroPsicologoScreen extends StatefulWidget {
   @override
-  _RegistroPsicologoScreenState createState() => _RegistroPsicologoScreenState();
+  _RegistroPsicologoScreenState createState() =>
+      _RegistroPsicologoScreenState();
 }
 
 class _RegistroPsicologoScreenState extends State<RegistroPsicologoScreen> {
@@ -22,18 +19,41 @@ class _RegistroPsicologoScreenState extends State<RegistroPsicologoScreen> {
 
   String _selectedEspecialidad = 'Seleccionar'; // Valor predeterminado
   String _selectedGenero = 'Seleccionar'; // Valor predeterminado
-  
 
-  List<String> especialidades = ['Seleccionar', 'Especialidad 1', 'Especialidad 2', 'Especialidad 3']; // Reemplaza con tus especialidades
-  List<String> genero = ['Seleccionar', 'Masculino', 'Femenino', 'Sin especificar'];
+  //Especialidad? especialidad;
+  List<String> especialidades = [
+    'Psicología clínica',
+    'Psicología infantil',
+    'Psicología organizacional',
+    'Psicología educativa',
+    'Psicología social'
+  ];
+
+  List<String> genero = [
+    'Seleccionar',
+    'Masculino',
+    'Femenino',
+    'Sin especificar'
+  ];
 
   Future<void> _registrarPsicologo() async {
     try {
       // Validar que los campos no estén vacíos
       // Puedes agregar más validaciones según tus necesidades
+      if (_selectedEspecialidad == 'Seleccionar' ||
+          nombresController.text.isEmpty ||
+          apellidosController.text.isEmpty ||
+          telefonoController.text.isEmpty ||
+          dniController.text.isEmpty ||
+          _selectedGenero == 'Seleccionar' ||
+          emailController.text.isEmpty ||
+          nacimientoController.text.isEmpty ||
+          nacionalidadController.text.isEmpty) {
+        throw ('Todos los campos son obligatorios');
+      }
 
       Map<String, dynamic> psicologoData = {
-        'id_especialidad': especialidades.indexOf(_selectedEspecialidad) + 1, // Sumar 1 porque los índices en la base de datos comienzan desde 1
+        'id_especialidad': especialidades.indexOf(_selectedEspecialidad), // Ajusta el campo según tus necesidades
         'dni': dniController.text,
         'nombres': nombresController.text,
         'apellidos': apellidosController.text,
@@ -43,7 +63,7 @@ class _RegistroPsicologoScreenState extends State<RegistroPsicologoScreen> {
         'correo': emailController.text,
         'nacionalidad': nacionalidadController.text,
       };
-
+      print(psicologoData);
       // Llamar al servicio de registro de psicólogo
       final value = await PsicologoService().registrarPsicologo(psicologoData);
 
@@ -60,14 +80,14 @@ class _RegistroPsicologoScreenState extends State<RegistroPsicologoScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Error de registro'),
+            title: const Text('Error de registro'),
             content: Text(e.toString()),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('OK'),
+                child: const Text('OK'),
               ),
             ],
           );
@@ -94,47 +114,55 @@ class _RegistroPsicologoScreenState extends State<RegistroPsicologoScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              DropdownButtonFormField(
+              DropdownButtonFormField<String>(
                 value: _selectedEspecialidad,
                 onChanged: (value) {
                   setState(() {
-                    _selectedEspecialidad = value.toString();
+                    _selectedEspecialidad = value!;
                   });
                 },
-                items: especialidades.map((especialidad) {
-                  return DropdownMenuItem(
-                    value: especialidad,
-                    child: Text(especialidad),
-                  );
-                }).toList(),
+                items: [
+                  const DropdownMenuItem<String>(
+                    value: 'Seleccionar',
+                    child: Text('Seleccionar'),
+                  ),
+                  ...especialidades.map((p) {
+                    return DropdownMenuItem<String>(
+                      value: p,
+                      child: Text(p),
+                    );
+                  }).toList(),
+                ],
                 decoration: const InputDecoration(
                   labelText: 'Especialidad',
                   icon: Icon(Icons.remember_me_outlined, color: Colors.purple),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               TextField(
                 controller: nombresController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nombres',
                   icon: Icon(Icons.person, color: Colors.purple),
                 ),
               ),
+              // Resto del código sin cambios...
+              const SizedBox(height: 20),
               TextField(
                 controller: apellidosController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Apellidos',
                   icon: Icon(Icons.person, color: Colors.purple),
                 ),
               ),
               TextField(
                 controller: telefonoController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Teléfono',
                   icon: Icon(Icons.phone, color: Colors.purple),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               DropdownButtonFormField(
                 value: _selectedGenero,
                 onChanged: (value) {
@@ -148,42 +176,43 @@ class _RegistroPsicologoScreenState extends State<RegistroPsicologoScreen> {
                     child: Text(genero),
                   );
                 }).toList(),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Género',
                   icon: Icon(Icons.remember_me_outlined, color: Colors.purple),
                 ),
-                isExpanded: true, // Asegura que el desplegable ocupe el ancho completo
+                isExpanded:
+                    true, // Asegura que el desplegable ocupe el ancho completo
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               TextField(
                 controller: dniController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'DNI',
                   icon: Icon(Icons.credit_card, color: Colors.purple),
                 ),
               ),
               TextField(
                 controller: emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                   icon: Icon(Icons.email, color: Colors.purple),
                 ),
               ),
               TextField(
                 controller: nacimientoController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Fecha de Nacimiento',
                   icon: Icon(Icons.calendar_today, color: Colors.purple),
                 ),
               ),
               TextField(
                 controller: nacionalidadController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nacionalidad',
                   icon: Icon(Icons.location_on, color: Colors.purple),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _registrarPsicologo,
                 style: ElevatedButton.styleFrom(
@@ -192,8 +221,8 @@ class _RegistroPsicologoScreenState extends State<RegistroPsicologoScreen> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
                   child: Text(
                     'Registrar',
                     style: TextStyle(

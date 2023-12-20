@@ -619,83 +619,85 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
         title: Text('Actividades CRECER'),
         backgroundColor: Colors.purple,
       ),
-      body: Column(
-        children: <Widget>[
-          TableCalendar(
-            firstDay: DateTime.utc(2020, 10, 16),
-            lastDay: DateTime.utc(2101, 10, 16),
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            calendarFormat: _calendarFormat,
-            onDaySelected: (selectedDay, focusedDay) {
-              setState(() {
-                _selectedDay = DateTime(
-                    selectedDay.year, selectedDay.month, selectedDay.day);
-                _focusedDay =
-                    DateTime(focusedDay.year, focusedDay.month, focusedDay.day);
-              });
-            },
-            onPageChanged: (focusedDay) {
-              setState(() {
-                _focusedDay = focusedDay;
-              });
-            },
-            eventLoader: (day) => [],
-            calendarBuilders: CalendarBuilders(
-              selectedBuilder: (context, date, events) {
-                return Container(
-                  margin: const EdgeInsets.all(4.0),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    date.day.toString(),
-                    style: TextStyle(color: Colors.white),
-                  ),
-                );
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            TableCalendar(
+              firstDay: DateTime.utc(2020, 10, 16),
+              lastDay: DateTime.utc(2101, 10, 16),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              calendarFormat: _calendarFormat,
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = DateTime(
+                      selectedDay.year, selectedDay.month, selectedDay.day);
+                  _focusedDay =
+                      DateTime(focusedDay.year, focusedDay.month, focusedDay.day);
+                });
               },
-              todayBuilder: (context, date, events) {
-                return Container(
-                  margin: const EdgeInsets.all(4.0),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    date.day.toString(),
-                    style: TextStyle(color: Colors.white),
-                  ),
-                );
+              onPageChanged: (focusedDay) {
+                setState(() {
+                  _focusedDay = focusedDay;
+                });
               },
-              defaultBuilder: (context, date, _) {
-                return Container(
-                  margin: const EdgeInsets.all(4.0),
-                  alignment: Alignment.center,
-                  child: Text(
-                    date.day.toString(),
-                    style: TextStyle(color: Colors.black),
-                  ),
-                );
-              },
+              eventLoader: (day) => [],
+              calendarBuilders: CalendarBuilders(
+                selectedBuilder: (context, date, events) {
+                  return Container(
+                    margin: const EdgeInsets.all(4.0),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      date.day.toString(),
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                },
+                todayBuilder: (context, date, events) {
+                  return Container(
+                    margin: const EdgeInsets.all(4.0),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      date.day.toString(),
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                },
+                defaultBuilder: (context, date, _) {
+                  return Container(
+                    margin: const EdgeInsets.all(4.0),
+                    alignment: Alignment.center,
+                    child: Text(
+                      date.day.toString(),
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "Actividades para ${DateFormat('dd-MM-yyyy').format(_selectedDay)}",
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Actividades para ${DateFormat('dd-MM-yyyy').format(_selectedDay)}",
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          Expanded(
-            child: FutureBuilder(
+            FutureBuilder(
               future: ActividadesService()
                   .obtenerActividadesPorFecha(fecha: _selectedDay),
               builder: (context, snapshot) => snapshot.hasError
                   ? Text(snapshot.error.toString())
                   : ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
                       itemCount: snapshot.data?.length ?? 0,
                       itemBuilder: (context, index) {
                         final actividad = snapshot.data?[index];
@@ -729,8 +731,8 @@ class _CronogramaScreenState extends State<CronogramaScreen> {
                       },
                     ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),

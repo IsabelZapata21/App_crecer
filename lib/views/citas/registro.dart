@@ -282,6 +282,24 @@ class _CitasPageState extends State<CitasPage> {
                         );
                         if (fechaSeleccionada != null &&
                             fechaSeleccionada != fechaCita) {
+                          final id = int.tryParse(psicologo?.id ?? '0');
+                          final fecha = DateFormat('y-M-d')
+                              .format(fechaSeleccionada.toLocal());
+                          final citas = await PsicologoService()
+                              .obtenerDisponibilidad(id, fecha);
+                          this.citas = citas;
+                          if (citas.isNotEmpty) {
+                            final endTime = DateTime.tryParse(
+                                '0000-00-00 ${citas.last.finCita}');
+                            if (endTime != null) {
+                              final newTime = TimeOfDay.fromDateTime(endTime);
+                              horaCita = newTime;
+                              finCita = newTime.minute < 55
+                                  ? newTime.replacing(minute: 59)
+                                  : newTime.replacing(hour: newTime.hour + 1);
+                            }
+                          }
+
                           setState(() {
                             fechaCita = fechaSeleccionada;
                           });

@@ -174,14 +174,6 @@ class ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: const Text('Chat Grupal'),
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: _showSearchDialog,
-          ),
-          IconButton(
-            icon: const Icon(Icons.archive),
-            onPressed: _archiveChat,
-          ),
         ],
       ),
       body: Column(
@@ -215,47 +207,7 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _showSearchDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Búsqueda avanzada'),
-          content: const Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Palabras clave',
-                ),
-                // Funcionalidad de búsqueda por palabras clave.
-              ),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Usuario',
-                ),
-                // Funcionalidad de búsqueda por usuario.
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            FloatingActionButton(
-              child: const Text('Buscar'),
-              onPressed: () {
-                // Función de búsqueda con los criterios seleccionados.
-              },
-            ),
-            FloatingActionButton(
-              child: const Text('Cancelar'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+ 
 
   void _archiveChat() {
     // Funcionalidad para archivar el chat actual.

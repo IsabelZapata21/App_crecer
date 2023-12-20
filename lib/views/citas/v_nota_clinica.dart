@@ -94,7 +94,7 @@ class NotaClinicaPage extends StatelessWidget {
               _buildInfoRow('Inicio', data['inicio'] ?? ''),
               _buildInfoRow('Desarrollo', data['desarrollo'] ?? ''),
               _buildInfoRow('Análisis', data['analisis'] ?? ''),
-              _buildInfoRow('Observaciones', data['observaciones'] ?? ''),
+              _buildInfoRow('Diagnóstico', data['observaciones'] ?? ''),
             ],
           );
         },
@@ -194,7 +194,7 @@ class NotaClinicaPage extends StatelessWidget {
             _buildInfoTile('Inicio', data['inicio'] ?? ''),
             _buildInfoTile('Desarrollo', data['desarrollo'] ?? ''),
             _buildInfoTile('Análisis', data['analisis'] ?? ''),
-            _buildInfoTile('Observaciones', data['observaciones'] ?? ''),
+            _buildInfoTile('Diagnóstico', data['observaciones'] ?? ''),
           ],
         ),
       ),

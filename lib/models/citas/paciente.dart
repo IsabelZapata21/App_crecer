@@ -30,7 +30,7 @@ class Pacientes {
       id: json["ID"],
       nombre: json["nombre"],
       direccion: json["direccion"],
-      telfono: json["teléfono"],
+      telfono: json["telefono"],
     );
   }
 
@@ -38,7 +38,7 @@ class Pacientes {
         "ID": id,
         "nombre": nombre,
         "direccion": direccion,
-        "teléfono": telfono,
+        "telefono": telfono,
       };
 
   @override
