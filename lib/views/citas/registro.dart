@@ -30,7 +30,8 @@ class _CitasPageState extends State<CitasPage> {
   Psicologo? psicologo;
   DateTime fechaCita = DateTime.now();
   TimeOfDay horaCita = TimeOfDay.now();
-  TimeOfDay finCita = TimeOfDay.now().replacing(hour: TimeOfDay.now().hour + 2);
+  TimeOfDay finCita = TimeOfDay.now().replacing(
+      hour: TimeOfDay.now().hour >= 10 ? 23 : TimeOfDay.now().hour + 2);
   String? estadoCita;
   int created = 1;
 
@@ -363,7 +364,8 @@ class _CitasPageState extends State<CitasPage> {
                     : null,
                 child: Text(
                   '${horaCita.format(context)} - ${finCita.format(context)}',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 16),
@@ -382,7 +384,7 @@ class _CitasPageState extends State<CitasPage> {
                         });
                       }
                     : null,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Estado de la Cita',
                   border: OutlineInputBorder(),
                 ),
